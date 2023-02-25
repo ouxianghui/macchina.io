@@ -6,7 +6,11 @@
       "label": "Build all",
       "command": "make",
       "args": [
-        "-s"
+        "POCO_CONFIG=RV1126",
+        "LINKMODE=SHARED",
+        "-s",
+        "-j8",
+        "DEFAULT_TARGET=shared_debug"
       ],
       "options": {
         "env": {

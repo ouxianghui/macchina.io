@@ -30,8 +30,8 @@ base:
 
 js:
 	$(MAKE) -C SystemInformation $(MAKECMDGOALS)
-	$(MAKE) -C Devices $(MAKECMDGOALS)
-	$(MAKE) -C Playground $(MAKECMDGOALS)
-	$(MAKE) -C MQTT $(MAKECMDGOALS)
-	$(MAKE) -C GPIO $(MAKECMDGOALS)
-	$(MAKE) -C GNSSTracking $(MAKECMDGOALS)
+#	$(MAKE) -C Devices $(MAKECMDGOALS)
+#	$(MAKE) -C Playground $(MAKECMDGOALS)
+#	$(MAKE) -C MQTT $(MAKECMDGOALS)
+#	$(MAKE) -C GPIO $(MAKECMDGOALS)
+#	$(MAKE) -C GNSSTracking $(MAKECMDGOALS)

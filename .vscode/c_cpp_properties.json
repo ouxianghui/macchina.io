@@ -47,40 +47,56 @@
 		]
   },
   "configurations": [
-    {
-      "name": "Mac",
-      "intelliSenseMode": "clang-x64",
-      "includePath": ["${macchinaIncludePath}"],
-      "macFrameworkPath": ["/System/Library/Frameworks"],
-      "defines": [],
-      "forcedInclude": [],
-      "compilerPath": "/usr/bin/clang",
-      "cStandard": "c11",
-      "cppStandard": "c++14",
-      "compileCommands": "",
-      "browse": {
-        "path": ["${workspaceFolder}"],
-        "limitSymbolsToIncludedHeaders": true,
-        "databaseFilename": ""
-      }
-    },
-    {
-      "name": "Linux",
-      "intelliSenseMode": "gcc-x64",
-      "includePath": ["${macchinaIncludePath}"],
-      "macFrameworkPath": ["/System/Library/Frameworks"],
-      "defines": [],
-      "forcedInclude": [],
-      "compilerPath": "/usr/bin/gcc",
-      "cStandard": "c11",
-      "cppStandard": "c++14",
-      "compileCommands": "",
-      "browse": {
-        "path": ["${workspaceFolder}"],
-        "limitSymbolsToIncludedHeaders": true,
-        "databaseFilename": ""
-      }
-    }
+    // {
+    //   "name": "Mac",
+    //   "intelliSenseMode": "clang-x64",
+    //   "includePath": ["${macchinaIncludePath}"],
+    //   "macFrameworkPath": ["/System/Library/Frameworks"],
+    //   "defines": [],
+    //   "forcedInclude": [],
+    //   "compilerPath": "/usr/bin/clang",
+    //   "cStandard": "c11",
+    //   "cppStandard": "c++14",
+    //   "compileCommands": "",
+    //   "browse": {
+    //     "path": ["${workspaceFolder}"],
+    //     "limitSymbolsToIncludedHeaders": true,
+    //     "databaseFilename": ""
+    //   }
+    // },
+    // {
+    //   "name": "Linux",
+    //   "intelliSenseMode": "gcc-x64",
+    //   "includePath": ["${macchinaIncludePath}"],
+    //   "macFrameworkPath": ["/System/Library/Frameworks"],
+    //   "defines": [],
+    //   "forcedInclude": [],
+    //   "compilerPath": "/usr/bin/gcc",
+    //   "cStandard": "c11",
+    //   "cppStandard": "c++14",
+    //   "compileCommands": "",
+    //   "browse": {
+    //     "path": ["${workspaceFolder}"],
+    //     "limitSymbolsToIncludedHeaders": true,
+    //     "databaseFilename": ""
+    //   }
+    // }
+	{
+		"name": "Linux(armv7l)",
+		"intelliSenseMode": "gcc-arm",
+		"includePath": ["${macchinaIncludePath}"],
+		"defines": [],
+		"forcedInclude": [],
+		"compilerPath": "/opt/toolchains/gcc/bin/arm-linux-gnueabihf-gcc",
+		"cStandard": "c11",
+		"cppStandard": "c++14",
+		"compileCommands": "",
+		"browse": {
+		  "path": ["${workspaceFolder}"],
+		  "limitSymbolsToIncludedHeaders": true,
+		  "databaseFilename": ""
+		}
+	  }
   ],
   "version": 4
 }

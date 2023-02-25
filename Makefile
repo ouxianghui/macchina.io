@@ -29,7 +29,7 @@ ifeq ($(PRODUCT),sdk)
 INSTALL_TARGET = install_sdk
 else ifeq ($(PRODUCT),runtime)
 INSTALL_TARGET = install_runtime
-MAKEARGS = DEFAULT_TARGET=shared_release
+MAKEARGS = DEFAULT_TARGET=shared_debug
 else
 $(error Invalid PRODUCT specified: $(PRODUCT))
 endif
@@ -87,13 +87,13 @@ endif
 clean all:
 	$(MAKE) -C platform $(MAKECMDGOALS) $(MAKEARGS)
 	$(MAKE) -C server $(MAKECMDGOALS) $(MAKEARGS)
-	$(MAKE) -C devices/Devices $(MAKECMDGOALS) $(MAKEARGS)
-	$(MAKE) -C devices/Serial $(MAKECMDGOALS) $(MAKEARGS)
-	$(MAKE) -C protocols $(MAKECMDGOALS) $(MAKEARGS)
-	$(MAKE) -C devices $(MAKECMDGOALS) $(MAKEARGS)
-	$(MAKE) -C services $(MAKECMDGOALS) $(MAKEARGS)
+#	$(MAKE) -C devices/Devices $(MAKECMDGOALS) $(MAKEARGS)
+#	$(MAKE) -C devices/Serial $(MAKECMDGOALS) $(MAKEARGS)
+#	$(MAKE) -C protocols $(MAKECMDGOALS) $(MAKEARGS)
+#	$(MAKE) -C devices $(MAKECMDGOALS) $(MAKEARGS)
+#	$(MAKE) -C services $(MAKECMDGOALS) $(MAKEARGS)
 	$(MAKE) -C webui $(MAKECMDGOALS) $(MAKEARGS)
-	$(MAKE) -C samples $(MAKECMDGOALS) $(MAKEARGS)
+#	$(MAKE) -C samples $(MAKECMDGOALS) $(MAKEARGS)
 
 clean_bundles:
 	rm platform/OSP/bundles/*.bndl
@@ -148,9 +148,9 @@ install_runtime:
 	mkdir -p $(INSTALLDIR)/lib/bundles
 	mkdir -p $(INSTALLDIR)/bin
 	mkdir -p $(INSTALLDIR)/etc
-	find $(MACCHINA_BASE)/server/bin/$(OSNAME)/$(OSARCH) -perm -700 -type f -name macchina -exec cp -f {} $(INSTALLDIR)/bin \;
+	find $(MACCHINA_BASE)/server/bin/$(OSNAME)/$(OSARCH) -perm -700 -type f -name macchinad -exec cp -f {} $(INSTALLDIR)/bin \;
 	for lib in $(RUNTIME_LIBS) ; do \
-		find $(POCO_BASE)/lib/$(OSNAME)/$(OSARCH) -name "lib$$lib$(VLIBEXT)" -type f -exec cp -f {} $(INSTALLDIR)/lib \; ; \
+		find $(POCO_BASE)/lib/$(OSNAME)/$(OSARCH) -name "lib$${lib}d$(VLIBEXT)" -type f -exec cp -f {} $(INSTALLDIR)/lib \; ; \
 	done
 	cp -f $(POCO_BASE)/OSP/bundles/*.bndl $(INSTALLDIR)/lib/bundles
 	cp -f $(MACCHINA_BASE)/*/bundles/*.bndl $(INSTALLDIR)/lib/bundles

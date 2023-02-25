@@ -1,34 +1,34 @@
 {
   "configurations": [
-  {
-    "name": "macOS LLDB (x86_64)",
-    "type": "lldb",
-    "request": "launch",
-    "program": "${workspaceFolder}/server/bin/Darwin/x86_64/macchinad",
-    "args": ["--clean"],
-    "stopOnEntry": false,
-    "cwd": "${workspaceFolder}",
-    "env": {
-      "POCO_ENABLE_DEBUGGER": "1",
-      "DYLD_LIBRARY_PATH": "${workspaceFolder}/macchina.io/platform/lib/Darwin/x86_64:${workspaceFolder}/macchina.io/server/bin/Darwin/x86_64/codeCache"
-    },
-    "terminal": "external"
-  },
-  {
-    "name": "Linux GDB (x86_64)",
-    "type": "cppdbg",
-    "request": "launch",
-    "program": "${workspaceFolder}/server/bin/Linux/x86_64/macchinad",
-    "args": ["--clean"],
-    "stopAtEntry": false,
-    "cwd": "${workspaceFolder}",
-    "environment": [
-      { "name": "POCO_ENABLE_DEBUGGER", "value": "1" },
-      { "name": "LD_LIBRARY_PATH", "value": "${workspaceFolder}/platform/lib/Linux/x86_64:${workspaceFolder}/server/bin/Linux/x86_64/codeCache" }
-    ],
-    "externalConsole": false,
-    "MIMode": "gdb"
-  },
+  // {
+  //   "name": "macOS LLDB (x86_64)",
+  //   "type": "lldb",
+  //   "request": "launch",
+  //   "program": "${workspaceFolder}/server/bin/Darwin/x86_64/macchinad",
+  //   "args": ["--clean"],
+  //   "stopOnEntry": false,
+  //   "cwd": "${workspaceFolder}",
+  //   "env": {
+  //     "POCO_ENABLE_DEBUGGER": "1",
+  //     "DYLD_LIBRARY_PATH": "${workspaceFolder}/macchina.io/platform/lib/Darwin/x86_64:${workspaceFolder}/macchina.io/server/bin/Darwin/x86_64/codeCache"
+  //   },
+  //   "terminal": "external"
+  // },
+  // {
+  //   "name": "Linux GDB (x86_64)",
+  //   "type": "cppdbg",
+  //   "request": "launch",
+  //   "program": "${workspaceFolder}/server/bin/Linux/x86_64/macchinad",
+  //   "args": ["--clean"],
+  //   "stopAtEntry": false,
+  //   "cwd": "${workspaceFolder}",
+  //   "environment": [
+  //     { "name": "POCO_ENABLE_DEBUGGER", "value": "1" },
+  //     { "name": "LD_LIBRARY_PATH", "value": "${workspaceFolder}/platform/lib/Linux/x86_64:${workspaceFolder}/server/bin/Linux/x86_64/codeCache" }
+  //   ],
+  //   "externalConsole": false,
+  //   "MIMode": "gdb"
+  // },
   {
     "name": "Linux GDB (armv7l)",
     "type": "cppdbg",
@@ -41,8 +41,19 @@
       { "name": "POCO_ENABLE_DEBUGGER", "value": "1" },
       { "name": "LD_LIBRARY_PATH", "value": "${workspaceFolder}/platform/lib/Linux/armv7l:${workspaceFolder}/server/bin/Linux/armv7l/codeCache" }
     ],
+    "additionalSOLibSearchPath": "${workspaceFolder}/server/bin/Linux/armv7l/codeCache",
     "externalConsole": false,
-    "MIMode": "gdb"
+    "MIMode": "gdb",
+    "miDebuggerPath":"/opt/toolchains/gcc/bin/arm-linux-gnueabihf-gdb",
+    "miDebuggerServerAddress": "192.168.1.66:2345",
+    "launchCompleteCommand": "exec-run",
+    // "setupCommands": [
+    //   {
+    //       "description": "path for dynamic libraries",
+    //       "text": "-gdb-set solib-search-path /home/sa/Documents/dev/macchina.io/server/bin/Linux/armv7l/codeCache",
+    //       "ignoreFailures": true
+    //   }
+    // ]
   }
   ]
 }
