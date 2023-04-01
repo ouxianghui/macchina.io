@@ -89,11 +89,12 @@ clean all:
 	$(MAKE) -C server $(MAKECMDGOALS) $(MAKEARGS)
 #	$(MAKE) -C devices/Devices $(MAKECMDGOALS) $(MAKEARGS)
 #	$(MAKE) -C devices/Serial $(MAKECMDGOALS) $(MAKEARGS)
-#	$(MAKE) -C protocols $(MAKECMDGOALS) $(MAKEARGS)
+	$(MAKE) -C protocols $(MAKECMDGOALS) $(MAKEARGS)
 #	$(MAKE) -C devices $(MAKECMDGOALS) $(MAKEARGS)
 #	$(MAKE) -C services $(MAKECMDGOALS) $(MAKEARGS)
 	$(MAKE) -C webui $(MAKECMDGOALS) $(MAKEARGS)
 #	$(MAKE) -C samples $(MAKECMDGOALS) $(MAKEARGS)
+	$(MAKE) -C xitech $(MAKECMDGOALS) $(MAKEARGS)
 
 clean_bundles:
 	rm platform/OSP/bundles/*.bndl
