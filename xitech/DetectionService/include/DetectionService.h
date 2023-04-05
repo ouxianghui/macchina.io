@@ -27,6 +27,10 @@ namespace xi {
 
 		void destroy() override;
 
+		void start() override ;
+
+		void stop() override;
+
 	private:
 		BundleContext::Ptr _pContext;
 

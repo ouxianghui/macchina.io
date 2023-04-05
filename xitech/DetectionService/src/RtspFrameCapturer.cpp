@@ -1,4 +1,5 @@
 #include "RtspFrameCapturer.h"
+#include <iostream>
 #include <cstring>
 #include <atomic>
 #include "defines.h"
@@ -15,10 +16,11 @@ namespace xi {
 	: _rgaNNCHN(chn)
 	, _activityRtsp(this, &RtspFrameCapturer::runRtsp)
 	, _activityCapture(this, &RtspFrameCapturer::runCapture)
+	, _rtspUrl(rtspUrl)
 	{
 		_rtspClient.callback = FFRKMediaVdecSend;
 		_rtspClient.count = 1;
-		_rtspClient.ffrtsp_get_info[0].url = (char*)rtspUrl.c_str();
+		_rtspClient.ffrtsp_get_info[0].url = (char*)_rtspUrl.c_str();
 	}
 
 	RtspFrameCapturer::~RtspFrameCapturer()
@@ -112,6 +114,7 @@ namespace xi {
 			printf("rtsp buf error is NULL\n");
 			return 0;
 		}
+		//printf("rtsp buf frameSize: %ld\n", frameSize);
 		MEDIA_BUFFER mb = RK_MPI_MB_CreateBuffer(frameSize, RK_FALSE, 0);
 		//printf("#Send packet(%p, %zuBytes) to VDEC[0].\n", RK_MPI_MB_GetPtr(mb),RK_MPI_MB_GetSize(mb));//打印发送多大数据到 VDEC
 		//RK_MPI_MB_SetSize(mb, frameSize);

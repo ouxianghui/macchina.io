@@ -21,10 +21,7 @@
 
 #include <set>
 #include <vector>
-
 #include "Postprocess.h"
-
-
 
 static char* labels[OBJ_CLASS_NUM_MAX];
 
@@ -124,8 +121,9 @@ char* readLine(FILE* fp, char* buffer, int* len)
   size_t buff_len = 0;
 
   buffer = (char*)malloc(buff_len + 1);
-  if (!buffer)
+  if (!buffer) {
     return NULL; // Out of memory
+  }
 
   while ((ch = fgetc(fp)) != '\n' && ch != EOF) {
     buff_len++;
@@ -159,8 +157,9 @@ int readLines(const char* fileName, char* lines[], int max_line)
   int   n = 0;
   while ((s = readLine(file, s, &n)) != NULL) {
     lines[i++] = s;
-    if (i >= max_line)
+    if (i >= max_line) {
       break;
+    }
   }
   return i;
 }

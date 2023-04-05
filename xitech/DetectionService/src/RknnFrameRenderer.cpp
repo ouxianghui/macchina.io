@@ -1,43 +1,43 @@
-#include "FrameRenderer.h"
+#include "RknnFrameRenderer.h"
 #include <memory>
 
 namespace xi {
 
-	FrameRenderer::FrameRenderer(const MPP_CHN_S& vencCHN, const MPP_CHN_S& drawCHN)
+	RknnFrameRenderer::RknnFrameRenderer(const MPP_CHN_S& vencCHN, const MPP_CHN_S& drawCHN)
 	: _rgaVencCHN(vencCHN)
 	, _rgaDrawCHN(drawCHN)
-	, _activity(this, &RtspFrameCapturer::runActivity)
+	, _activity(this, &RknnFrameRenderer::runActivity)
 	{
 
 	}
 
-	FrameRenderer::~FrameRenderer()
+	RknnFrameRenderer::~RknnFrameRenderer()
 	{
 
 	}
 
-	void FrameRenderer::init() 
+	void RknnFrameRenderer::init() 
 	{
 
 	}
 
-	void FrameRenderer::destroy() 
+	void RknnFrameRenderer::destroy() 
 	{
 
 	}
 
-	void FrameRenderer::start() 
+	void RknnFrameRenderer::start() 
 	{
 		_activity.start();
 	}
 
-	void FrameRenderer::stop() 
+	void RknnFrameRenderer::stop() 
 	{
 		_activity.stop();
 		_activity.wait();
 	}
 
-	void FrameRenderer::runActivity()
+	void RknnFrameRenderer::runActivity()
 	{
 		MEDIA_BUFFER buffer;
 

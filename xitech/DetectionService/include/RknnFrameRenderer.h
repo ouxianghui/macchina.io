@@ -32,7 +32,7 @@ namespace xi {
 
 		const MPP_CHN_S& _rgaDrawCHN;
 
-		Poco::Activity<RtspFrameCapturer> _activity;
+		Poco::Activity<RknnFrameRenderer> _activity;
 
 	};
 

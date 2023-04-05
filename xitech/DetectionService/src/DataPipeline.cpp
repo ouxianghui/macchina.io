@@ -125,7 +125,7 @@ namespace {
 		stRgaAttr.u16Rotaion = 0;
 		stRgaAttr.stImgIn.u32X = 0;
 		stRgaAttr.stImgIn.u32Y = 0;
-		stRgaAttr.stImgIn.imgType = IMAGE_TYPE_RGB888;
+		stRgaAttr.stImgIn.imgType = IMAGE_TYPE_BGR888;
 		stRgaAttr.stImgIn.u32Width = nWidth;
 		stRgaAttr.stImgIn.u32Height = nHeight;
 		stRgaAttr.stImgIn.u32HorStride = nWidth;

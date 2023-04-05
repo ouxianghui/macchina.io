@@ -45,5 +45,7 @@ namespace xi {
 		std::vector<std::weak_ptr<ICapturerListener>> _observers;
 
 		struct FFRTSPGet _rtspClient;
+
+		std::string _rtspUrl;
 	};
 }
