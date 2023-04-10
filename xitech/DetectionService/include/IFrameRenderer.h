@@ -12,9 +12,7 @@ namespace xi {
 
 		virtual void destroy() = 0;
 
-		virtual void start() = 0;
-
-		virtual void stop() = 0;
+		virtual void renderFrame(void* buffer, int32_t length) = 0;
 
 	};
 }

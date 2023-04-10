@@ -19,7 +19,6 @@
     bin/${osName}/${osArch}/*.so,
     bin/${osName}/${osArch}/*.dylib
     lib/*.so
-    resources/*
   </code>
   <files>
     bundle/*

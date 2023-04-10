@@ -9,7 +9,6 @@ namespace xi {
 	class DataPipeline;
 	class IFrameCapturer;
 	class IFrameProcessor;
-	class IFrameRenderer;
 	class IStreamProvider;
 
 	class DetectionService: public IDetectionService
@@ -31,6 +30,9 @@ namespace xi {
 
 		void stop() override;
 
+	protected:
+		void copyModel(BundleContext::Ptr pContext, const std::string& path, const std::string& name);
+
 	private:
 		BundleContext::Ptr _pContext;
 
@@ -39,8 +41,6 @@ namespace xi {
 		std::shared_ptr<IFrameCapturer> _frameCapturer;
 
 		std::shared_ptr<IFrameProcessor> _frameProcessor;
-
-		std::shared_ptr<IFrameRenderer> _frameRenderer;
 
 		std::shared_ptr<IStreamProvider> _streamProvider;
 	};

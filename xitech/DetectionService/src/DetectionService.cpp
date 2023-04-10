@@ -5,15 +5,19 @@
 #include <net/if.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <iostream>
+#include <fstream>
 #include "Poco/OSP/BundleActivator.h"
 #include "Poco/OSP/BundleContext.h"
 #include "Poco/OSP/Bundle.h"
 #include "Poco/OSP/ServiceRegistry.h"
 #include "Poco/ClassLibrary.h"
+#include "Poco/Path.h"
+#include "Poco/File.h"
 #include "DataPipeline.h"
-#include "RtspFrameCapturer.h"
+#include "FrameCapturer.h"
 #include "RknnFrameProcessor.h"
-#include "RknnFrameRenderer.h"
+#include "FrameRenderer.h"
 #include "RtspStreamProvider.h"
 #include "rkmedia_common.h"
 
@@ -64,45 +68,48 @@ namespace xi {
 	DetectionService::DetectionService(BundleContext::Ptr pContext)
 	: _pContext(pContext)
 	{
-		// TODO: set image type for cpaturer
-		_dataPipeline = std::make_shared<DataPipeline>(IMAGE_TYPE_BGR888, 640);
-		_dataPipeline->init();
+		// // TODO: set image type for cpaturer
+		// _dataPipeline = std::make_shared<DataPipeline>(IMAGE_TYPE_BGR888, 640);
+		// _dataPipeline->init();
 
-		char szLocalIP[32] = {0};
-		getLocalIP(szLocalIP);
-		char szRtspUrl[128] = {0x0};
-  		sprintf(szRtspUrl, "rtsp://%s:554/live/main_stream", szLocalIP);
-		std::string rtspUrl(szRtspUrl);
-		_frameCapturer = std::make_shared<RtspFrameCapturer>(_dataPipeline->rgaNNCHN(), rtspUrl);
-		_frameCapturer->init();
+		// char szLocalIP[32] = {0};
+		// getLocalIP(szLocalIP);
+		// char szRtspUrl[128] = {0x0};
+  		// sprintf(szRtspUrl, "rtsp://%s:554/live/main_stream", szLocalIP);
+		// std::string rtspUrl(szRtspUrl);
+		// _frameCapturer = std::make_shared<FrameCapturer>(_dataPipeline->rgaNNCHN(), rtspUrl);
+		// _frameCapturer->init();
 
-		// // TODO:
-		// std::string modelFilePath;
-		// auto processor = std::make_shared<RknnFrameProcessor>(modelFilePath, 20, 40);
-		// _frameProcessor->init();
+		std::string modelFileName("person-5m-6.2.rknn");
+		std::string modelFilePath = "/userdata/model";
 
-		// _frameCapturer->addListener(processor);
+		copyModel(pContext, modelFilePath, modelFileName);
 
-		// _frameProcessor = processor;
+		std::string modelFullName = modelFilePath + "/" + modelFileName;
 
-		_frameRenderer = std::make_shared<RknnFrameRenderer>(_dataPipeline->rgaVencCHN(), _dataPipeline->rgaDrawCHN());
-		_frameRenderer->init();
+		auto processor = std::make_shared<RknnFrameProcessor>(modelFullName, 20, 40);
+		processor->init();
+		//_frameCapturer->addListener(processor);
+		_frameProcessor = processor;
 
-		_streamProvider = std::make_shared<RtspStreamProvider>(_dataPipeline->vencCHN());
-		_streamProvider->init();
+		// _frameRenderer = std::make_shared<FrameRenderer>(_dataPipeline->rgaVencCHN(), _dataPipeline->rgaDrawCHN());
+		// _frameRenderer->init();
+
+		// auto provider = std::make_shared<RtspStreamProvider>(_dataPipeline->vencCHN());
+		// provider->init(std::make_shared<FrameRenderer>());
+		// _frameCapturer->addListener(provider);
+		// _streamProvider = provider;
 	}
 	
 	DetectionService::~DetectionService()
 	{
-		_frameCapturer->destroy();
+		//_frameCapturer->destroy();
 
-		// _frameProcessor->destroy();
+		_frameProcessor->destroy();
 
-		_frameRenderer->destroy();
+		//_streamProvider->destroy();
 
-		_streamProvider->destroy();
-
-		_dataPipeline->destroy();
+		//_dataPipeline->destroy();
 	}
 	
 	const std::type_info& DetectionService::type() const
@@ -128,24 +135,57 @@ namespace xi {
 
 	void DetectionService::start()  
 	{
-		_frameCapturer->start();
+		//_frameCapturer->start();
 
-		// _frameProcessor->start();
+		_frameProcessor->start();
 
-		_frameRenderer->start();
-
-		_streamProvider->start();
+		//_streamProvider->start();
 	}
 
 	void DetectionService::stop() 
 	{
-		_frameCapturer->stop();
+		//_frameCapturer->stop();
 
-		// _frameProcessor->stop();
+		_frameProcessor->stop();
 
-		_frameRenderer->stop();
-
-		_streamProvider->stop();
+		//_streamProvider->stop();
 	}
 
+	void DetectionService::copyModel(BundleContext::Ptr pContext, const std::string& path, const std::string& name)
+	{
+		std::unique_ptr<std::istream> stream(pContext->thisBundle()->getResource(name));
+		if (!stream->good()) {
+			std::cerr << "read model resource faild: " << name << std::endl;
+			return;
+		}
+		Poco::Path d(path);
+		Poco::File f(path);
+		if (!f.exists()) {
+			d.makeDirectory();
+			if (!f.exists()) {
+				std::cerr << "create directory failed: " << path << std::endl;
+				return;
+			}
+		}
+
+		std::string modelFullName = path + "/" + name;
+
+		{
+			std::ofstream output;
+			output.open(modelFullName, std::ios::binary | std::ios::out | std::ios::trunc);
+
+			char buf[1024] = {0};
+			std::streamsize bytesRead; 
+			do 
+			{ 
+				stream->read(buf, 1024);
+				bytesRead = stream->gcount();
+				//std::cout << " -------------> bytesRead: " << bytesRead << std::endl;
+				output.write(buf, bytesRead);
+				// do stuff with the bytes you read, if any 
+			} while (!stream->eof()); 
+
+			output.close();
+		}
+	}
 }
