@@ -7,7 +7,7 @@
 include $(POCO_BASE)/build/rules/global
 include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
 
-objects = BundleActivator WebrtcStreamer
+objects = BundleActivator StreamerManager MediasoupStreamer 
 
 target = cn.xitech.iot.streamer
 

@@ -22,7 +22,8 @@
 #include "engine.h"
 #include "logger/u_logger.h"
 #include "room_client.h"
-#include "WebrtcStreamer.h"
+#include "StreamerManager.h"
+#include "MediasoupStreamer.h"
 
 // export LD_LIBRARY_PATH=~/Documents/dev/macchina.io/platform/lib/Linux/x86_64:~/Documents/dev/macchina.io/server/bin/Linux/x86_64/codeCache
 
@@ -33,34 +34,27 @@ namespace streamer {
 class BundleActivator: public Poco::OSP::BundleActivator
 {
 public:
-	BundleActivator() {
+	BundleActivator() 
+	{
 		auto dylib = std::make_shared<Poco::SharedLibrary>("libRTCStreamer.so");
 		_dylibs.emplace_back(dylib);
 	}
 
-	~BundleActivator() {
+	~BundleActivator() 
+	{
 		for (const auto& lib : _dylibs) {
 			lib->unload();
 		}
 	}
 
-	void start(Poco::OSP::BundleContext::Ptr pContext) {
+	void start(Poco::OSP::BundleContext::Ptr pContext) 
+	{
 
 		_pContext = pContext;
 
 		_pPrefs = Poco::OSP::ServiceFinder::find<Poco::OSP::PreferencesService>(pContext);
 
     	vi::ULogger::init();
-
-		std::string level = "error";
-		// Set RTC logging severity.
-		if (level== "info") {
-			rtc::LogMessage::LogToDebug(rtc::LoggingSeverity::LS_INFO);
-		} else if (level == "warn") {
-			rtc::LogMessage::LogToDebug(rtc::LoggingSeverity::LS_WARNING);
-		} else if (level == "error") {
-			rtc::LogMessage::LogToDebug(rtc::LoggingSeverity::LS_ERROR);
-		}
 
 		auto logLevel = mediasoupclient::Logger::LogLevel::LOG_DEBUG;
 		mediasoupclient::Logger::SetLogLevel(logLevel);
@@ -71,44 +65,53 @@ public:
 
     	getEngine()->init();
 
+		getEngine()->setRTCLoggingSeverity("error");
+
+		std::string host = _pPrefs->configuration()->getString("xitech.sfu.host");
+		int32_t port  = _pPrefs->configuration()->getInt("xitech.sfu.port", 4443);
+		std::string roomId = _pPrefs->configuration()->getString("xitech.sfu.roomId");
+
+		_streamerManager = std::make_shared<StreamerManager>(host, port, roomId);
+		_streamerManager->init();
+
+		std::string baseUrl = "https://" + host + ":" + std::to_string(port);
+
+		_pContext->logger().information(Poco::format("baseUrl: %s, roomId: %s", baseUrl, roomId));
+
 		Poco::Util::AbstractConfiguration::Keys keys;
 		_pPrefs->configuration()->keys("xitech.streamer", keys);
 
-		std::string serverUrl;
-		std::string roomId;
-		std::string name;
-		bool enableAudio = false;
-		bool useSimulcast = true;
-		bool verifySsl = true;
+		std::shared_ptr<PublishParams> params;
 		for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it) {
+			params = std::make_shared<PublishParams>();
 			try {
 				std::string baseKey = "xitech.streamer.";
 				baseKey += *it;
 
-				serverUrl = _pPrefs->configuration()->getString(baseKey + ".serverUrl");
-				roomId = _pPrefs->configuration()->getString(baseKey + ".roomId");
-				name = _pPrefs->configuration()->getString(baseKey + ".name", "broadcaster");
-				enableAudio = _pPrefs->configuration()->getBool(baseKey + ".enableAudio", false);
-				useSimulcast = _pPrefs->configuration()->getBool(baseKey + ".useSimulcast", true);
-				verifySsl = _pPrefs->configuration()->getBool(baseKey + ".verifySsl", true);
+				params->baseUrl = baseUrl;
+				params->roomId = roomId;
+				params->videoUrl = _pPrefs->configuration()->getString(baseKey + ".videoUrl");
+				params->displayName = _pPrefs->configuration()->getString(baseKey + ".name", "broadcaster");
+				params->deviceName = _pPrefs->configuration()->getString(baseKey + ".deviceName");
+				params->enableAudio = _pPrefs->configuration()->getBool(baseKey + ".enableAudio", false);
+				params->useSimulcast = _pPrefs->configuration()->getBool(baseKey + ".useSimulcast", true);
+				params->verifySsl = _pPrefs->configuration()->getBool(baseKey + ".verifySsl", true);
+
+				auto streamer = std::make_shared<MediasoupStreamer>(params);
+				_streamerManager->addStreamer(streamer);
+
 			}
 			catch (Poco::Exception& exc) {
-				_pContext->logger().error(Poco::format("Invalid configuration, name: %s,  %s", verifySsl, exc.displayText()));
+				_pContext->logger().error(Poco::format("Invalid configuration, name: %s,  %s", params->roomId, exc.displayText()));
 			}
 		}
-
-		// xitech.streamer.0.serverUrl = "https://www.wevisit.cn:4443"
-		// xitech.streamer.0.roomId = "jmucv-001"
-		// xitech.streamer.0.name = "T0"
-		// xitech.streamer.0.enableAudio = false
-		// xitech.streamer.0.useSimulcast = true
-		// xitech.streamer.0.verifySsl = true
-
-		run();
-
+		_streamerManager->start();
 	}
 
-	void stop(Poco::OSP::BundleContext::Ptr pContext) {
+	void stop(Poco::OSP::BundleContext::Ptr pContext) 
+	{
+		_streamerManager->destroy();
+
 		getEngine()->destroy();
 
 		mediasoupclient::Cleanup();
@@ -126,6 +129,8 @@ private:
 	Poco::OSP::PreferencesService::Ptr _pPrefs;
 
 	std::vector<std::shared_ptr<Poco::SharedLibrary>> _dylibs;
+
+	std::shared_ptr<StreamerManager> _streamerManager;
 };
 
 
