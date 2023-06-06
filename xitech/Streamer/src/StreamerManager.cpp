@@ -32,8 +32,9 @@ namespace streamer {
     {
         if (auto client = getEngine()->createRoomClient()) {
             _clientId = client->getId();
-            rtc::Thread* callbackThread = getThread("mediasoup");
-            client->addObserver(shared_from_this(), callbackThread);
+            if (rtc::Thread* callbackThread = getThread("mediasoup")) {
+                client->addObserver(shared_from_this(), callbackThread);
+            }
         }
     }
 
@@ -51,7 +52,7 @@ namespace streamer {
             client->join(_host, _port, _roomId, "Host", _options);
         }
 
-        publish();
+        //publish();
     }
 
     void StreamerManager::stop()
@@ -105,10 +106,25 @@ namespace streamer {
     void StreamerManager::onRoomStateChanged(vi::RoomState state)
     {
         if (state == vi::RoomState::CONNECTED) {
+            std::cerr << " StreamerManager::onRoomStateChanged: connected" << std::endl;
             publish();
         }
         else if (state == vi::RoomState::CLOSED) {
             unpublish();
+            Poco::Timestamp tsNow;
+            _timer.schedule(Poco::Util::Timer::func([wself = weak_from_this()]() {
+                if (auto self = wself.lock()) {
+                    self->publish();
+                }
+	        }), tsNow + 1000 * 1000 * 5);
+
+            //if (auto thread = getThread("mediasoup")) {
+            //    thread->PostDelayedTask(RTC_FROM_HERE, [wself = weak_from_this()](){
+            //        if (auto self = wself.lock()) {
+            //            self->publish();
+            //        }
+            //    }, 5000);
+            //}
         }
     }
 

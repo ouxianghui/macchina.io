@@ -3,6 +3,7 @@
 #include <memory>
 #include <mutex>
 #include <vector>
+#include "Poco/Util/Timer.h"
 #include "IStreamer.h"
 #include "i_room_client_observer.h"
 #include "options.h"
@@ -62,6 +63,8 @@ namespace streamer {
         std::string _roomId;
 
         std::shared_ptr<vi::Options> _options;
+
+        Poco::Util::Timer _timer;
     };
 
 }

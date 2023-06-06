@@ -25,6 +25,7 @@
 #include "StreamerManager.h"
 #include "MediasoupStreamer.h"
 
+// make -s -j8 DEFAULT_TARGET=shared_release
 // export LD_LIBRARY_PATH=~/Documents/dev/macchina.io/platform/lib/Linux/x86_64:~/Documents/dev/macchina.io/server/bin/Linux/x86_64/codeCache
 
 namespace xi {
@@ -98,6 +99,7 @@ public:
 				params->verifySsl = _pPrefs->configuration()->getBool(baseKey + ".verifySsl", true);
 
 				auto streamer = std::make_shared<MediasoupStreamer>(params);
+				streamer->init();
 				_streamerManager->addStreamer(streamer);
 
 			}

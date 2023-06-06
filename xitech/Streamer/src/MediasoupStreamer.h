@@ -1,13 +1,16 @@
 ﻿#pragma once
 
-#include "IStreamer.h"
+#include <memory>
 #include "Poco/Activity.h"
+#include "Poco/Util/Timer.h"
+#include "IStreamer.h"
+#include "broadcaster.hpp"
 
 namespace xi {
 
 namespace streamer {
 
-    class MediasoupStreamer : public IStreamer {
+    class MediasoupStreamer : public IStreamer, public IBroadcasterObserver, public std::enable_shared_from_this<MediasoupStreamer> {
     public:
         MediasoupStreamer(const std::shared_ptr<PublishParams>& params);
 
@@ -21,13 +24,23 @@ namespace streamer {
 
         void unpublish() override;
 
+    protected:
+        void republish();
+
     private:
 	    void runActivity(); 
+
+    private:
+        void onStatusChanged(BroadcasterStatus status) override;
 
     private:
         Poco::Activity<MediasoupStreamer> _activity;
 
         std::shared_ptr<PublishParams> _params;
+
+        std::shared_ptr<Broadcaster> _broadcaster;
+
+        Poco::Util::Timer _timer;
     };
 
 }
