@@ -16,12 +16,11 @@
 #include "Poco/SharedLibrary.h"
 #include "Poco/OSP/PreferencesService.h"
 #include "Poco/OSP/ServiceFinder.h"
-
+#include "logger/logger.h"
 #include "broadcaster.hpp"
 #include "mediasoupclient.hpp"
 #include "engine.h"
-#include "logger/u_logger.h"
-#include "room_client.h"
+#include "i_room_client.h"
 #include "StreamerManager.h"
 #include "MediasoupStreamer.h"
 
@@ -39,6 +38,8 @@ public:
 	{
 		auto dylib = std::make_shared<Poco::SharedLibrary>("libRTCStreamer.so");
 		_dylibs.emplace_back(dylib);
+		
+		vi::Logger::init();
 	}
 
 	~BundleActivator() 
@@ -46,6 +47,8 @@ public:
 		for (const auto& lib : _dylibs) {
 			lib->unload();
 		}
+		
+		vi::Logger::destroy();
 	}
 
 	void start(Poco::OSP::BundleContext::Ptr pContext) 
@@ -55,7 +58,6 @@ public:
 
 		_pPrefs = Poco::OSP::ServiceFinder::find<Poco::OSP::PreferencesService>(pContext);
 
-    	vi::ULogger::init();
 
 		auto logLevel = mediasoupclient::Logger::LogLevel::LOG_DEBUG;
 		mediasoupclient::Logger::SetLogLevel(logLevel);
@@ -117,8 +119,6 @@ public:
 		getEngine()->destroy();
 
 		mediasoupclient::Cleanup();
-
-		vi::ULogger::destroy();
 
 		_pPrefs.reset();
 

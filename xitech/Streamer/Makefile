@@ -11,7 +11,7 @@ objects = BundleActivator StreamerManager MediasoupStreamer
 
 target = cn.xitech.iot.streamer
 
-target_includes = $(PROJECT_BASE)/xitech/Streamer/3rd/include $(PROJECT_BASE)/xitech/Streamer/3rd/include/include $(PROJECT_BASE)/xitech/Streamer/3rd/include/deps $(PROJECT_BASE)/xitech/Streamer/3rd/include/deps/webrtc/include $(PROJECT_BASE)/xitech/Streamer/3rd/include/deps/webrtc/include/third_party/abseil-cpp $(PROJECT_BASE)/xitech/Streamer/3rd/include/deps/libmediasoupclient/include $(PROJECT_BASE)/xitech/Streamer/3rd/include/deps/libmediasoupclient/deps/libsdptransform/include $(PROJECT_BASE)/xitech/Streamer/3rd/include/deps/spdlog/include $(PROJECT_BASE)/xitech/Streamer/3rd/include/deps/rapidjson/include $(PROJECT_BASE)/xitech/Streamer/3rd/include/deps/asio/asio/include  $(PROJECT_BASE)/xitech/Streamer/3rd/include/deps/websocketpp
+target_includes = $(PROJECT_BASE)/xitech/Streamer/3rd/include $(PROJECT_BASE)/xitech/Streamer/3rd/include/include $(PROJECT_BASE)/xitech/Streamer/3rd/include/deps $(PROJECT_BASE)/xitech/Streamer/3rd/include/deps/webrtc/include $(PROJECT_BASE)/xitech/Streamer/3rd/include/deps/webrtc/include/third_party/abseil-cpp $(PROJECT_BASE)/xitech/Streamer/3rd/include/deps/libmediasoupclient/include $(PROJECT_BASE)/xitech/Streamer/3rd/include/deps/libmediasoupclient/deps/libsdptransform/include $(PROJECT_BASE)/xitech/Streamer/3rd/include/deps/spdlog/include
 
 target_libs = PocoOSP PocoUtil PocoXML PocoFoundation
 

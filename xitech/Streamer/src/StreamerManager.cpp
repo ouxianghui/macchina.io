@@ -1,7 +1,7 @@
 ﻿#include "StreamerManager.h"
+#include <iostream>
 #include "engine.h"
-#include "logger/u_logger.h"
-#include "room_client.h"
+#include "i_room_client.h"
 #include "utils/thread_provider.h"
 
 namespace xi {
@@ -51,8 +51,6 @@ namespace streamer {
         if (auto client = getRoomClient(_clientId)) {
             client->join(_host, _port, _roomId, "Host", _options);
         }
-
-        //publish();
     }
 
     void StreamerManager::stop()
