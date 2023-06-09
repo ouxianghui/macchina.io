@@ -22,7 +22,7 @@ poco: libexecs $(if $(TESTS),tests) $(if $(SAMPLES),samples)
 all: libexecs tests samples
 
 INSTALLDIR = $(DESTDIR)$(POCO_PREFIX)
-COMPONENTS = Foundation XML JSON Util Net Data Data/SQLite Zip Crypto NetSSL_OpenSSL JWT CppParser CodeGeneration RemotingNG RemotingNG/RemoteGen RemotingNG/TCP OSP OSP/BundleCreator OSP/CodeCacheUtility OSP/StripBundle OSP/Web OSP/Core OSP/Crypto OSP/Data OSP/Data/SQLite OSP/Net OSP/NetSSL_OpenSSL OSP/SecureWebServer OSP/WebServer
+COMPONENTS = Foundation XML JSON Util Net Data Data/SQLite Data/MySQL Zip Crypto NetSSL_OpenSSL JWT CppParser CodeGeneration RemotingNG RemotingNG/RemoteGen RemotingNG/TCP OSP OSP/BundleCreator OSP/CodeCacheUtility OSP/StripBundle OSP/Web OSP/Core OSP/Crypto OSP/Data OSP/Data/SQLite OSP/Net OSP/NetSSL_OpenSSL OSP/SecureWebServer OSP/WebServer
 
 cppunit:
 	$(MAKE) -C $(POCO_BASE)/CppUnit
@@ -46,10 +46,10 @@ install: libexecs
 	find $(POCO_BUILD)/lib -name "libPoco*" -type l -exec cp -Rf {} $(INSTALLDIR)/lib \;
 
 # POCO C++ Libraries
-libexecs = Foundation-libexec XML-libexec JSON-libexec Util-libexec Net-libexec Crypto-libexec NetSSL_OpenSSL-libexec Data-libexec Data/SQLite-libexec Zip-libexec JWT-libexec PageCompiler-libexec PageCompiler/File2Page-libexec
-tests    = Foundation-tests XML-tests JSON-tests Util-tests Net-tests Crypto-tests NetSSL_OpenSSL-tests Data-tests Data/SQLite-tests Zip-tests JWT-tests CppParser-tests
+libexecs = Foundation-libexec XML-libexec JSON-libexec Util-libexec Net-libexec Crypto-libexec NetSSL_OpenSSL-libexec Data-libexec Data/SQLite-libexec Data/MySQL-libexec Zip-libexec JWT-libexec PageCompiler-libexec PageCompiler/File2Page-libexec
+tests    = Foundation-tests XML-tests JSON-tests Util-tests Net-tests Crypto-tests NetSSL_OpenSSL-tests Data-tests Data/SQLite-tests Data/MySQL-tests Zip-tests JWT-tests CppParser-tests
 samples  = Foundation-samples XML-samples JSON-samples Util-samples Net-samples Crypto-samples NetSSL_OpenSSL-samples Data-samples Zip-samples PageCompiler-samples
-cleans   = Foundation-clean XML-clean JSON-clean Util-clean Net-clean Crypto-clean NetSSL_OpenSSL-clean Data-clean Data/SQLite-clean Zip-clean JWT-clean PageCompiler-clean PageCompiler/File2Page-clean CppParser-clean
+cleans   = Foundation-clean XML-clean JSON-clean Util-clean Net-clean Crypto-clean NetSSL_OpenSSL-clean Data-clean Data/SQLite-clean Data/MySQL-clean Zip-clean JWT-clean PageCompiler-clean PageCompiler/File2Page-clean CppParser-clean
 
 # WebTunnel, JS, Remoting and OSP
 libexecs += \
@@ -247,6 +247,16 @@ Data/SQLite-clean:
 	$(MAKE) -C $(POCO_BASE)/Data/SQLite clean
 	$(MAKE) -C $(POCO_BASE)/Data/SQLite/testsuite clean
 
+Data/MySQL-libexec:  Foundation-libexec Data-libexec
+	$(MAKE) -C $(POCO_BASE)/Data/MySQL
+
+Data/MySQL-tests: Data/MySQL-libexec cppunit
+	$(MAKE) -C $(POCO_BASE)/Data/MySQL/testsuite
+
+Data/MySQL-clean:
+	$(MAKE) -C $(POCO_BASE)/Data/MySQL clean
+	$(MAKE) -C $(POCO_BASE)/Data/MySQL/testsuite clean
+	
 ActiveRecord-libexec: Foundation-libexec Data-libexec
 	$(MAKE) -C $(POCO_BASE)/ActiveRecord
 
