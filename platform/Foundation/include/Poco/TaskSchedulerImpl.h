@@ -8,7 +8,6 @@
 #include "Poco/Runnable.h"
 
 namespace xi {
-namespace XDBotThermometer {
 
 typedef void (*Callable)(void*);
 
@@ -65,5 +64,4 @@ private:
 	Poco::NotificationQueue _queue;
 };	
 
-}
 }

@@ -39,7 +39,6 @@
 #include "Utility.h"
 #include "Poco/Net/WebSocket.h"
 #include "Poco/Net/NetException.h"
-#include "NotificationsUtils.h"
 
 
 namespace xi {
@@ -53,11 +52,9 @@ EventRequestHandler::EventRequestHandler(Poco::OSP::BundleContext::Ptr pContext)
 {
 	_pPrefs = Poco::OSP::ServiceFinder::find<Poco::OSP::PreferencesService>(_pContext);
 
-	Poco::NotificationCenter::defaultCenter().addObserver(Poco::Observer<EventRequestHandler, xi::utils::SensorMultipleAlarmNotification>(*this, &EventRequestHandler::onAlarm));
+	_scheduler.start();
 
-	Poco::NotificationCenter::defaultCenter().addObserver(Poco::Observer<EventRequestHandler, xi::utils::ActiveAlarmsNotification>(*this, &EventRequestHandler::onActiveAlarms));
-
-	Poco::NotificationCenter::defaultCenter().addObserver(Poco::Observer<EventRequestHandler, xi::utils::SensorStatusNotification>(*this, &EventRequestHandler::onStatus));
+	setupDatabase();
 }
 
 EventRequestHandler::~EventRequestHandler()
@@ -72,18 +69,15 @@ Poco::OSP::BundleContext::Ptr EventRequestHandler::context() const
 
 void EventRequestHandler::shutdown()
 {
-	Poco::NotificationCenter::defaultCenter().removeObserver(Poco::Observer<EventRequestHandler, xi::utils::SensorMultipleAlarmNotification>(*this, &EventRequestHandler::onAlarm));
-
-	Poco::NotificationCenter::defaultCenter().removeObserver(Poco::Observer<EventRequestHandler, xi::utils::ActiveAlarmsNotification>(*this, &EventRequestHandler::onActiveAlarms));
-
-	Poco::NotificationCenter::defaultCenter().removeObserver(Poco::Observer<EventRequestHandler, xi::utils::SensorStatusNotification>(*this, &EventRequestHandler::onStatus));
-
-	_queue.wakeUpAll();
+	if (_pSession) {
+		_pSession->close();
+	}
+	
+	_scheduler.stop();
 }
 
 void EventRequestHandler::send(const std::string& buffer)
 {
-	//return;
 	if (!_pWS || (_flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) == Poco::Net::WebSocket::FRAME_OP_CLOSE) {
 		return;
 	}
@@ -119,22 +113,18 @@ void EventRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, P
 			_pWS = std::make_shared<Poco::Net::WebSocket>(request, response);
 		}
 
-		Poco::NotificationCenter::defaultCenter().postNotification(new xi::utils::QueryActiveAlarmsNotification());
-
 		char buffer[1024] = {0};
 		int n = 0;
 		do {
 			n = _pWS->receiveFrame(buffer, sizeof(buffer), _flags);
+			std::string msg(buffer, n);
 			if ((_flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) != Poco::Net::WebSocket::FRAME_OP_PING) {
-				std::string msg(buffer, n);
 				_pWS->sendFrame(buffer, n, _flags);
 			}
 			else if ((_flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) != Poco::Net::WebSocket::FRAME_OP_TEXT) {
-
+				onMessage(msg);
 			}
 		} while (n > 0 || (_flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) != Poco::Net::WebSocket::FRAME_OP_CLOSE);
-
-		_queue.wakeUpAll();
 
 		std::cout << std::endl << "WebSocket connection established." << std::endl;
 	}
@@ -175,106 +165,66 @@ void EventRequestHandler::onSendPing(Poco::Timer& timer)
 
 void EventRequestHandler::run() 
 {
-	messagesLoop();
-}
-
-void EventRequestHandler::messagesLoop()
-{
-	try {
-		Poco::AutoPtr<Poco::Notification> pNf = _queue.waitDequeueNotification();
-		while (pNf) {
-			if (auto pMsgNf = pNf.cast<xi::utils::MessageNotification>()) {
-				std::string json(pMsgNf->data());
-				// if (_pWS && (_flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) != Poco::Net::WebSocket::FRAME_OP_CLOSE) {
-				// 	_pWS->sendFrame(json.data(), static_cast<int>(json.size()), _flags);				
-				// }
-				this->send(json);
-			}
-			pNf = _queue.waitDequeueNotification();
-		}
-	}
-	catch (Poco::Exception&) {
-
-	}
-}
-
-void EventRequestHandler::processAlarmData(const std::vector<std::shared_ptr<AlarmData>>& vecData)
-{
-	Poco::JSON::Object messsage;
-	messsage.set("event", std::string("alarm"));
-	Poco::JSON::Array payload;
-	for (auto data : vecData) {
-		Poco::JSON::Object item;
-		item.set("sensorId", data->sensorId);
-		item.set("type", data->type);
-		item.set("channel", data->channel);
-		item.set("ruleId", data->ruleId);
-		item.set("alarmType", data->alarmType);
-		item.set("alarmLevel", data->alarmLevel);
-		item.set("alarmRule", data->alarmRule);
-		item.set("unit", data->unit);
-		item.set("ruleValue", data->ruleValue);
-		item.set("currValue", data->currValue);
-		item.set("suddenChangeCycle", data->suddenChangeCycle);
-		item.set("suddenChangeValue", data->suddenChangeValue);
-		item.set("begin", (data->begin.timestamp().epochTime() - Poco::Timestamp::TimeDiff(60 * 60 * 8)));
-		// item.set("end", data->end.timestamp().epochTime());
-		item.set("status", data->status);
-		payload.add(item);
-	}
-	messsage.set("payload", payload);
-	std::ostringstream osstr;
-	Poco::JSON::Stringifier::stringify(messsage, osstr);
-	DetectionData data;
-	_queue.enqueueNotification(new xi::utils::MessageNotification(osstr.str()));
-}
-
-void EventRequestHandler::onAlarm(xi::utils::SensorMultipleAlarmNotification* nf)
-{
-	std::vector<std::shared_ptr<AlarmData>> vecData = nf->data();
-	if (vecData.empty()) {
-		return;
-	}
-
-	processAlarmData(vecData);
-}
-
-void EventRequestHandler::onStatus(xi::utils::SensorStatusNotification* nf)
-{
-	std::vector<std::shared_ptr<SensorStatus>> statusList = nf->statusList();
-	if (statusList.empty()) {
-		return;
-	}
-	Poco::JSON::Object messsage;
 	
-	messsage.set("event", std::string("status"));
-	Poco::JSON::Array payload;
-	for (const auto& status : statusList) {
-		Poco::JSON::Object item;
-		item.set("sensorId", status->sensorId);
-		item.set("status", status->status);
-		payload.add(item);
-	}
-	messsage.set("payload", payload);
-
-	std::ostringstream osstr;
-	Poco::JSON::Stringifier::stringify(messsage, osstr);
-
-	_queue.enqueueNotification(new xi::utils::MessageNotification(osstr.str()));
 }
 
-void EventRequestHandler::onActiveAlarms(xi::utils::ActiveAlarmsNotification* nf)
+void EventRequestHandler::connectNoDB() 
 {
-	if (!_requested) {
-		_requested = true;
+	std::string dbConnString = "host=" + _dbHost + ";port=" + std::to_string(_dbPort) + ";user=" + _dbUser + ";password=" + _dbPassword + ";db=" + _dbName + ";compress=true;auto-reconnect=true;secure-auth=true;protocol=tcp";
 
-		std::vector<std::shared_ptr<AlarmData>> vecData = nf->data();
-		if (vecData.empty()) {
+	try {
+		Session session(MySQL::Connector::KEY, dbConnString);
+
+		_pContext->logger().information("*** Connected to [MySQL] without database.");
+
+		session << "CREATE DATABASE IF NOT EXISTS " + _dbName + ";", now;
+
+		_pContext->logger().information("Disconnecting ...");
+
+		session.close();
+
+		_pContext->logger().information("Disconnected");
+	}
+	catch (ConnectionFailedException& exc) {
+		_pContext->logger().error(Poco::format("Connection failed exception: %s", exc.displayText()));
+	}
+}
+
+void EventRequestHandler::setupDatabase() 
+{
+	MySQL::Connector::registerConnector();
+
+	_dbUser = _pPrefs->configuration()->getString("xitech.xdbot.db.user", "");
+	_dbPassword = _pPrefs->configuration()->getString("xitech.xdbot.db.password", "");
+	_dbPort = _pPrefs->configuration()->getInt("xitech.xdbot.db.port", 3306);
+	_dbHost = _pPrefs->configuration()->getString("xitech.xdbot.db.host", "");
+	_dbName = _pPrefs->configuration()->getString("xitech.xdbot.db.name", "");
+
+	_dbConnString = "host=" + _dbHost + ";port=" + std::to_string(_dbPort) + ";user=" + _dbUser + ";password=" + _dbPassword + ";db=" + _dbName + ";compress=true;auto-reconnect=true;secure-auth=true;protocol=tcp";
+	_pContext->logger().information(Poco::format("database connect string: %s", _dbConnString));
+
+	try {
+		_pSession = new Session(MySQL::Connector::KEY, _dbConnString);
+	}
+	catch (ConnectionFailedException& exc) {
+		_pContext->logger().error(Poco::format("Connection failed exception: %s", exc.displayText()));
+		_pContext->logger().error("Trying to connect without DB and create one ...");
+		connectNoDB();
+		try {
+			_pSession = new Session(MySQL::Connector::KEY, _dbConnString);
+		}
+		catch (ConnectionFailedException& ex) {
+			_pContext->logger().error(Poco::format("Connection failed exception: %s", exc.displayText()));
 			return;
 		}
-
-		processAlarmData(vecData);
 	}
+
+	_pContext->logger().debug(Poco::format("*** Connected to [MySQL] '%s' database.", _dbName));
+}
+
+void EventRequestHandler::onMessage(const std::string& buffer)
+{
+
 }
 
 Poco::Net::HTTPRequestHandler* EventRequestHandlerFactory::createRequestHandler(const Poco::Net::HTTPServerRequest& request)

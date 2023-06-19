@@ -1,9 +1,8 @@
-#include "TaskSchedulerImpl.h"
+#include "Poco/TaskSchedulerImpl.h"
 #include <iostream>
 #include <thread>
 
 namespace xi {
-namespace XDBotThermometer {	
 
 class RunnableHolder: public Poco::Runnable {
 public:
@@ -111,5 +110,4 @@ void TaskSchedulerImpl::run()
 	}
 }
 
-}
 }

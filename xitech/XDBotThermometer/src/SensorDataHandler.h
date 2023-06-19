@@ -13,8 +13,7 @@
 #include "Poco/Thread.h"
 #include "NotificationsUtils.h"
 #include "XDBotData.h"
-#include "SerialTaskScheduler.h"
-#include "ConcurrentTaskScheduler.h"
+#include "Poco/SerialTaskScheduler.h"
 
 namespace xi {
 namespace XDBotThermometer {

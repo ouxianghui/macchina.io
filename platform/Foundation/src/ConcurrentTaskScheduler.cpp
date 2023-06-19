@@ -1,10 +1,8 @@
-#include "ConcurrentTaskScheduler.h"
+#include "Poco/ConcurrentTaskScheduler.h"
 #include <iostream>
 
 namespace xi {
-namespace XDBotThermometer {	
-
-
+	
 ConcurrentTaskScheduler::ConcurrentTaskScheduler() : TaskSchedulerImpl(5, 5)
 {
 
@@ -22,9 +20,7 @@ ConcurrentTaskScheduler::ConcurrentTaskScheduler(const std::string& name, int32_
 
 ConcurrentTaskScheduler::~ConcurrentTaskScheduler()
 {
-}
-
-
 
 }
+
 }

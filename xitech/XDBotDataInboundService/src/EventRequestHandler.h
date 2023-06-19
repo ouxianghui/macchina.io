@@ -21,14 +21,26 @@
 #include "Poco/NotificationQueue.h"
 #include "Poco/Runnable.h"
 #include "Poco/Timer.h"
+#include "Poco/Data/LOB.h"
+#include "Poco/Data/StatementImpl.h"
+#include "Poco/Data/MySQL/Connector.h"
+#include "Poco/Data/MySQL/Utility.h"
+#include "Poco/Data/MySQL/MySQLException.h"
+#include "Poco/Data/DataException.h"
 #include "XDBotData.h"
-#include "NotificationsUtils.h"
+#include "Poco/SerialTaskScheduler.h"
 
 namespace Poco {
 	namespace Net {
 		class WebSocket;
 	}
 }
+
+using namespace Poco::Data;
+using namespace Poco::Data::Keywords;
+using Poco::Data::MySQL::ConnectionException;
+using Poco::Data::MySQL::Utility;
+using Poco::Data::MySQL::StatementException;
 
 namespace xi {
 namespace XDBotDataInboundService {
@@ -54,17 +66,13 @@ protected:
 
 	void send(const std::string& buffer);	
 
-	void messagesLoop();
-
-	void onAlarm(xi::utils::SensorMultipleAlarmNotification* nf);
-
-	void onActiveAlarms(xi::utils::ActiveAlarmsNotification* nf);
-
-	void onStatus(xi::utils::SensorStatusNotification* nf);
-
 	void onSendPing(Poco::Timer& timer);
 
-	void processAlarmData(const std::vector<std::shared_ptr<AlarmData>>& data);
+	void connectNoDB();
+
+	void setupDatabase();
+
+	void onMessage(const std::string& buffer);
 
 private:
 
@@ -76,15 +84,29 @@ private:
 
 	int _flags;
 
-	Poco::NotificationQueue _queue;
-
 	Poco::SharedPtr<Poco::Timer> _pingTimer;
 
 	Poco::TimerCallback<EventRequestHandler> _sendPing;
 
 	uint64_t _seq = 0;
 
-	std::atomic_bool _requested {false};
+
+ 	std::string _dbUser;
+
+	std::string _dbPassword;
+
+	std::string _dbHost;
+
+	Poco::UInt16 _dbPort;
+
+	std::string _dbName;
+
+	std::string _dbConnString;
+
+	Poco::SharedPtr<Poco::Data::Session> _pSession;
+
+	// only for database operations
+	SerialTaskScheduler _scheduler;
 };
 
 
