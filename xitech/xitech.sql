@@ -68,3 +68,19 @@ create table AlarmData
 );
 
 create index index_1 on AlarmData(begin, sensorId, alarmType, alarmLevel);
+
+create table DetectionData
+(
+    devCode VARCHAR(16) NOT NULL,   
+    devName VARCHAR(64), 
+    valueType VARCHAR(16), 
+    value VARCHAR(16), 
+    valueCN VARCHAR(64), 
+    recResult UNSIGNED,
+    recReason VARCHAR(64),
+    imageUrl VARCHAR(256),
+    eventTime DATETIME,
+    recordId BIGINT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT
+);
+
+create index index_1 on DetectionData(devCode, devName);

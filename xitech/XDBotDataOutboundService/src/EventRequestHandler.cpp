@@ -43,7 +43,7 @@
 
 
 namespace xi {
-namespace XDBotService {
+namespace XDBotDataOutboundService {
 
 EventRequestHandler::EventRequestHandler(Poco::OSP::BundleContext::Ptr pContext)
 	: _pContext(pContext)
@@ -225,7 +225,7 @@ void EventRequestHandler::processAlarmData(const std::vector<std::shared_ptr<Ala
 	messsage.set("payload", payload);
 	std::ostringstream osstr;
 	Poco::JSON::Stringifier::stringify(messsage, osstr);
-
+	DetectionData data;
 	_queue.enqueueNotification(new xi::utils::MessageNotification(osstr.str()));
 }
 
@@ -282,4 +282,4 @@ Poco::Net::HTTPRequestHandler* EventRequestHandlerFactory::createRequestHandler(
 	return new EventRequestHandler(context());
 }
 
-} } // namespace xi::XDBotService
+} } // namespace xi::XDBotDataOutboundService

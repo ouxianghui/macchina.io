@@ -8,8 +8,8 @@
 //
 
 
-#ifndef XDBotService_Utility_INCLUDED
-#define XDBotService_Utility_INCLUDED
+#ifndef XDBotDataInboundService_Utility_INCLUDED
+#define XDBotDataInboundService_Utility_INCLUDED
 
 
 #include "Poco/Poco.h"
@@ -19,7 +19,7 @@
 
 
 namespace xi {
-namespace XDBotService {
+namespace XDBotDataInboundService {
 
 
 class Utility
@@ -37,7 +37,7 @@ public:
 };
 
 
-} }  // namespace xi::XDBotService
+} }  // namespace xi::XDBotDataInboundService
 
 
-#endif // XDBotService_Utility_INCLUDED
+#endif // XDBotDataInboundService_Utility_INCLUDED

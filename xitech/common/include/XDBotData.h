@@ -245,6 +245,42 @@ struct SensorStatus {
 	uint32_t status;
 };
 
+struct DetectionData
+{
+	std::string devCode;
+	std::string devName;
+	std::string valueType;
+	std::string value;
+	std::string valueCN;
+	uint32_t recResult;
+	std::string recReason;
+	std::string imageUrl;
+	DateTime eventTime;
+	uint64_t recordId;
+
+	DetectionData() {}
+
+	bool operator==(const DetectionData& other) const {
+		return recordId == other.recordId 
+		&& devCode == other.devCode 
+		&& devName == other.devName;
+	}
+
+	bool operator < (const DetectionData& data) const {
+		if (recordId < data.recordId) {
+			return true;
+		}
+
+		return (eventTime < data.eventTime);
+	}
+
+	uint64_t operator () () {
+		/// This method is required so we can extract data to a map!
+		// we choose the lastName as examplary key
+		return recordId;
+	}
+};
+
 namespace Poco {
 namespace Data {
 
@@ -487,6 +523,65 @@ public:
 		TypeHandler<float>::extract(pos++, obj.suddenChangeValue, defVal.suddenChangeValue, pExt);
 		TypeHandler<Poco::DateTime>::extract(pos++, obj.begin, defVal.begin, pExt);
 		TypeHandler<Poco::DateTime>::extract(pos++, obj.end, defVal.end, pExt);
+		TypeHandler<uint64_t>::extract(pos++, obj.recordId, defVal.recordId, pExt);
+
+	}
+
+private:
+	TypeHandler();
+	~TypeHandler();
+	TypeHandler(const TypeHandler&);
+	TypeHandler& operator=(const TypeHandler&);
+};
+
+template <>
+class TypeHandler<DetectionData>
+{
+public:
+	static std::size_t size() {
+		return 15;
+	}
+
+	static void bind(std::size_t pos, const DetectionData& obj, AbstractBinder::Ptr pBinder, AbstractBinder::Direction dir) {
+		poco_assert_dbg (!pBinder.isNull());
+		TypeHandler<std::string>::bind(pos++, obj.devCode, pBinder, dir);
+		TypeHandler<std::string>::bind(pos++, obj.devName, pBinder, dir);
+		TypeHandler<std::string>::bind(pos++, obj.valueType, pBinder, dir);
+		TypeHandler<std::string>::bind(pos++, obj.value, pBinder, dir);
+        TypeHandler<std::string>::bind(pos++, obj.valueCN, pBinder, dir);
+		TypeHandler<uint32_t>::bind(pos++, obj.recResult, pBinder, dir);
+		TypeHandler<std::string>::bind(pos++, obj.recReason, pBinder, dir);
+        TypeHandler<std::string>::bind(pos++, obj.imageUrl, pBinder, dir);
+		TypeHandler<Poco::DateTime>::bind(pos++, obj.eventTime, pBinder, dir);
+		TypeHandler<uint64_t>::bind(pos++, obj.recordId, pBinder, dir);
+	}
+
+	static void prepare(std::size_t pos, const DetectionData& obj, AbstractPreparator::Ptr pPrepare) {
+		poco_assert_dbg (!pPrepare.isNull());
+		TypeHandler<std::string>::prepare(pos++, obj.devCode, pPrepare);
+		TypeHandler<std::string>::prepare(pos++, obj.devName, pPrepare);
+		TypeHandler<std::string>::prepare(pos++, obj.valueType, pPrepare);
+		TypeHandler<std::string>::prepare(pos++, obj.value, pPrepare);
+        TypeHandler<std::string>::prepare(pos++, obj.valueCN, pPrepare);
+		TypeHandler<uint32_t>::prepare(pos++, obj.recResult, pPrepare);
+		TypeHandler<std::string>::prepare(pos++, obj.recReason, pPrepare);
+		TypeHandler<std::string>::prepare(pos++, obj.imageUrl, pPrepare);
+		TypeHandler<Poco::DateTime>::prepare(pos++, obj.eventTime, pPrepare);
+		TypeHandler<uint64_t>::prepare(pos++, obj.recordId, pPrepare);
+	}
+
+	static void extract(std::size_t pos, DetectionData& obj, const DetectionData& defVal, AbstractExtractor::Ptr pExt) {
+		poco_assert_dbg (!pExt.isNull());
+
+		TypeHandler<std::string>::extract(pos++, obj.devCode, defVal.devCode, pExt);
+		TypeHandler<std::string>::extract(pos++, obj.devName, defVal.devName, pExt);
+		TypeHandler<std::string>::extract(pos++, obj.valueType, defVal.valueType, pExt);
+		TypeHandler<std::string>::extract(pos++, obj.value, defVal.value, pExt);
+		TypeHandler<std::string>::extract(pos++, obj.valueCN, defVal.valueCN, pExt);
+		TypeHandler<uint32_t>::extract(pos++, obj.recResult, defVal.recResult, pExt);
+		TypeHandler<std::string>::extract(pos++, obj.recReason, defVal.recReason, pExt);
+		TypeHandler<std::string>::extract(pos++, obj.imageUrl, defVal.imageUrl, pExt);
+		TypeHandler<Poco::DateTime>::extract(pos++, obj.eventTime, defVal.eventTime, pExt);
 		TypeHandler<uint64_t>::extract(pos++, obj.recordId, defVal.recordId, pExt);
 
 	}

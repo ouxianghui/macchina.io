@@ -12,7 +12,7 @@
 
 
 namespace xi {
-namespace XDBotService {
+namespace XDBotDataOutboundService {
 
 
 bool Utility::isAuthenticated(Poco::OSP::Web::WebSession::Ptr pSession, Poco::Net::HTTPServerResponse& response)
@@ -69,4 +69,4 @@ std::string Utility::jsonize(const std::string& str)
 }
 
 
-} }  // namespace xi::XDBotService
+} }  // namespace xi::XDBotDataOutboundService

@@ -8,8 +8,8 @@
 //
 
 
-#ifndef XDBotService_EventRequestHandler_INCLUDED
-#define XDBotService_EventRequestHandler_INCLUDED
+#ifndef XDBotDataOutboundService_EventRequestHandler_INCLUDED
+#define XDBotDataOutboundService_EventRequestHandler_INCLUDED
 
 #include <memory>
 #include <unordered_map>
@@ -31,7 +31,7 @@ namespace Poco {
 }
 
 namespace xi {
-namespace XDBotService {
+namespace XDBotDataOutboundService {
 
 
 class EventRequestHandler: public Poco::Net::HTTPRequestHandler, public Poco::Runnable
@@ -95,7 +95,7 @@ public:
 };
 
 
-} }  // xi::XDBotService
+} }  // xi::XDBotDataOutboundService
 
 
-#endif // XDBotService_EventRequestHandler_INCLUDED
+#endif // XDBotDataOutboundService_EventRequestHandler_INCLUDED

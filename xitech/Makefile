@@ -9,5 +9,6 @@
 clean all:
 	$(MAKE) -C XDBotThermometer $(MAKECMDGOALS)
 	$(MAKE) -C XDBotAlarmer $(MAKECMDGOALS)
-	$(MAKE) -C XDBotService $(MAKECMDGOALS)
+	$(MAKE) -C XDBotDataInboundService $(MAKECMDGOALS)
+	$(MAKE) -C XDBotDataOutboundService $(MAKECMDGOALS)
 	$(MAKE) -C Streamer $(MAKECMDGOALS)

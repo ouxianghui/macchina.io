@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <bundlespec>
   <manifest>
-    <name>XDBotService</name>
-    <symbolicName>io.macchina.xitech.xdbot.service</symbolicName>
+    <name>XDBotDataInboundService</name>
+    <symbolicName>io.macchina.xitech.xdbot.data.inbound.service</symbolicName>
     <version>1.0.0</version>
     <vendor>Applied Informatics</vendor>
     <copyright>(c) 2017-2022, Applied Informatics Software Engineering GmbH</copyright>

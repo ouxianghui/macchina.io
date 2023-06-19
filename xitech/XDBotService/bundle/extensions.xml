@@ -1,3 +1,0 @@
-<extensions>
-  <extension point="osp.web.server.requesthandler" methods="GET, HEAD, POST" pattern="/xitech/xdbot/service/events" class="xi::XDBotService::EventRequestHandlerFactory" library="io.macchina.xitech.xdbot.service" allowSpecialization="none" hidden="true"/>
-</extensions>

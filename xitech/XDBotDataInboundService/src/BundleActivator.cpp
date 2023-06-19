@@ -25,7 +25,7 @@
 
 
 namespace xi {
-namespace XDBotService {
+namespace XDBotDataInboundService {
 
 
 class BundleActivator: public Poco::OSP::BundleActivator
@@ -49,14 +49,14 @@ public:
 };
 
 
-} } // namespace xi::XDBotService
+} } // namespace xi::XDBotDataInboundService
 
 
 POCO_BEGIN_NAMED_MANIFEST(WebServer, Poco::OSP::Web::WebRequestHandlerFactory)
-	POCO_EXPORT_CLASS(xi::XDBotService::EventRequestHandlerFactory)
+	POCO_EXPORT_CLASS(xi::XDBotDataInboundService::EventRequestHandlerFactory)
 POCO_END_MANIFEST
 
 
 POCO_BEGIN_MANIFEST(Poco::OSP::BundleActivator)
-	POCO_EXPORT_CLASS(xi::XDBotService::BundleActivator)
+	POCO_EXPORT_CLASS(xi::XDBotDataInboundService::BundleActivator)
 POCO_END_MANIFEST
