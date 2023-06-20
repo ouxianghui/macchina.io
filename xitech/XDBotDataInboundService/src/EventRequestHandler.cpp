@@ -132,10 +132,10 @@ void EventRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, P
 		do {
 			n = _pWS->receiveFrame(buffer, sizeof(buffer), _flags);
 			std::string msg(buffer, n);
-			if ((_flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) != Poco::Net::WebSocket::FRAME_OP_PING) {
+			if ((_flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) == Poco::Net::WebSocket::FRAME_OP_PING) {
 				_pWS->sendFrame(buffer, n, _flags);
 			}
-			else if ((_flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) != Poco::Net::WebSocket::FRAME_OP_TEXT) {
+			else if ((_flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) == Poco::Net::WebSocket::FRAME_OP_TEXT) {
 				onMessage(msg);
 			}
 		} while (n > 0 || (_flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) != Poco::Net::WebSocket::FRAME_OP_CLOSE);
@@ -257,8 +257,6 @@ void EventRequestHandler::onMessage(const std::string& json)
         return;
     }
 
-    Poco::JSON::Object::NameList names = object->getNames();
-
     const Poco::DynamicStruct& ds = *object;
 
     if (ds.size() <= 0) {
@@ -321,15 +319,13 @@ void EventRequestHandler::processDetectionAlarm(Poco::SharedPtr<DetectionData> d
 }
 
 
-std::vector<Poco::SharedPtr<DetectionData>> parseDetectionAlarmData(const Poco::Dynamic::Var& var) 
+std::vector<Poco::SharedPtr<DetectionData>> EventRequestHandler::parseDetectionAlarmData(const Poco::Dynamic::Var& var) 
 {
     Poco::JSON::Object::Ptr object = var.extract<Poco::JSON::Object::Ptr>();
 
     if (!object) {
         return {};
     }
-
-    Poco::JSON::Object::NameList names = object->getNames();
 
     const Poco::DynamicStruct& ds = *object;
 
@@ -338,7 +334,7 @@ std::vector<Poco::SharedPtr<DetectionData>> parseDetectionAlarmData(const Poco::
     }
 
 	std::string imgUrl;
-    Poco::Dynamic::Var img = ds["img"];
+    Poco::Dynamic::Var img = ds["imgUrl"];
     if (img.isString()) {
         imgUrl = img.convert<std::string>();
     }
