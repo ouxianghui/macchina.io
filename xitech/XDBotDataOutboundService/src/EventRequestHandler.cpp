@@ -135,8 +135,6 @@ void EventRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, P
 		} while (n > 0 || (_flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) != Poco::Net::WebSocket::FRAME_OP_CLOSE);
 
 		_queue.wakeUpAll();
-
-		std::cout << std::endl << "WebSocket connection established." << std::endl;
 	}
 	catch (Poco::Net::WebSocketException& exc) {
 		_pContext->logger().log(exc);

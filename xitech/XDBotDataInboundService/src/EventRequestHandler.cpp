@@ -125,20 +125,45 @@ void EventRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, P
 			_pWS = std::make_shared<Poco::Net::WebSocket>(request, response);
 		}
 
-		char buffer[8192] = {0};
+		char buffer[4096] = {0};
 		int n = 0;
 		do {
+
+			// FRAME_OP_CONT    = 0x00, /// Continuation frame.
+			// FRAME_OP_TEXT    = 0x01, /// Text frame.
+			// FRAME_OP_BINARY  = 0x02, /// Binary frame.
+			// FRAME_OP_CLOSE   = 0x08, /// Close connection.
+			// FRAME_OP_PING    = 0x09, /// Ping frame.
+			// FRAME_OP_PONG    = 0x0a, /// Pong frame.
+			// FRAME_OP_BITMASK = 0x0f, /// Bit mask for opcodes.
+			// FRAME_OP_SETRAW  = 0x100 /// Set raw flags (for use with sendBytes() and FRAME_OP_CONT).
+
+			//if ((_flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) == Poco::Net::WebSocket::FRAME_OP_CONT) {
+			//	std::cout << "FRAME_OP_CONT" << std::endl;
+			//} 
+			//else if ((_flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) == Poco::Net::WebSocket::FRAME_OP_TEXT) {
+			//	std::cout << "FRAME_OP_TEXT" << std::endl;
+			//}
+			//else if ((_flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) == Poco::Net::WebSocket::FRAME_OP_CLOSE) {
+			//	std::cout << "FRAME_OP_CLOSE" << std::endl;
+			//}
+			//else if ((_flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) == Poco::Net::WebSocket::FRAME_OP_PING) {
+			//	std::cout << "FRAME_OP_PING" << std::endl;
+			//}
+			//else if ((_flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) == Poco::Net::WebSocket::FRAME_OP_PONG) {
+			//	std::cout << "FRAME_OP_PONG" << std::endl;
+			//}
+			//else if ((_flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) == Poco::Net::WebSocket::FRAME_OP_SETRAW) {
+			//	std::cout << "FRAME_OP_SETRAW" << std::endl;
+			//}
+
 			n = _pWS->receiveFrame(buffer, sizeof(buffer), _flags);
-			std::string msg(buffer, n);
-			if ((_flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) == Poco::Net::WebSocket::FRAME_OP_PING) {
-				_pWS->sendFrame(buffer, n, _flags);
-			}
-			else if ((_flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) == Poco::Net::WebSocket::FRAME_OP_TEXT) {
+			if ((_flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) == Poco::Net::WebSocket::FRAME_OP_TEXT) {
+				std::string msg(buffer, n);
 				onMessage(msg);
 			}
 		} while (n > 0 || (_flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) != Poco::Net::WebSocket::FRAME_OP_CLOSE);
 
-		std::cout << std::endl << "WebSocket connection established." << std::endl;
 	}
 	catch (Poco::Net::WebSocketException& exc) {
 		_pContext->logger().log(exc);
@@ -164,7 +189,7 @@ void EventRequestHandler::onSendPing(Poco::Timer& timer)
 		if (_pWS) {
 			std::stringstream sstr;
 			sstr << "ping: " << ++_seq;
-			_pWS->sendFrame(sstr.str().c_str(), sstr.str().length(), Poco::Net::WebSocket::FRAME_TEXT |  Poco::Net::WebSocket::FRAME_OP_PING);
+			_pWS->sendFrame(sstr.str().c_str(), sstr.str().length(), Poco::Net::WebSocket::FRAME_TEXT | Poco::Net::WebSocket::FRAME_OP_PING);
 		}
 	}
 	catch (Poco::Net::WebSocketException& exc) {
@@ -242,6 +267,7 @@ void EventRequestHandler::onMessage(const std::string& json)
     } 
 	catch (Poco::JSON::JSONException& jsone) {
 		std::cerr << jsone.what() << ": " << jsone.message() << std::endl;
+		return;
     }
 
     Poco::JSON::Object::Ptr object = result.extract<Poco::JSON::Object::Ptr>();

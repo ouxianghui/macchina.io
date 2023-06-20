@@ -12,7 +12,7 @@ objects =  \
 	Utility \
 	BundleActivator 
 
-target      = io.macchina.xitech.xdbot.data.outbound.service
+target      = cn.xitech.xdbot.data.outbound.service
 target_includes = $(PROJECT_BASE)/platform/Data/include $(PROJECT_BASE)/platform/Data/MySQL/include $(PROJECT_BASE)/xitech/common/include
 target_libs = PocoOSPWeb PocoOSP PocoNet PocoZip PocoUtil PocoJSON PocoXML PocoFoundation PocoData PocoDataMySQL
 

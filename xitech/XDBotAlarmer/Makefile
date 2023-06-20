@@ -9,7 +9,7 @@ include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
 
 objects = BundleActivator AlarmHandler
 
-target          = io.macchina.xitech.xdbot.alarmer
+target          = cn.xitech.xdbot.alarmer
 target_includes = $(PROJECT_BASE)/devices/Devices/include $(PROJECT_BASE)/platform/Data/include $(PROJECT_BASE)/platform/Data/MySQL/include $(PROJECT_BASE)/xitech/common/include
 target_libs     = IoTDevices PocoOSP PocoUtil PocoJSON PocoXML PocoFoundation
 
