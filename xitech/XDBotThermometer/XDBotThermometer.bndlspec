@@ -1,13 +1,13 @@
 <bundlespec>
 	<manifest>
-		<name>XDBotThermometer</name>
-		<symbolicName>io.macchina.xitech.xdbot.thermometer</symbolicName>
+		<name>xitech.xdbot.Thermometer</name>
+		<symbolicName>cn.xitech.xdbot.thermometer</symbolicName>
 		<version>1.0.0</version>
 		<vendor>Applied Informatics</vendor>
 		<copyright>(c) 2019-2022, Applied Informatics Software Engineering GmbH</copyright>
 		<activator>
 			<class>xi::XDBotThermometer::BundleActivator</class>
-			<library>io.macchina.xitech.xdbot.thermometer</library>
+			<library>cn.xitech.xdbot.thermometer</library>
 		</activator>
 	</manifest>
 	<files>

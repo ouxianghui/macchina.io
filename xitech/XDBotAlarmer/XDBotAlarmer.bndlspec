@@ -1,13 +1,13 @@
 <bundlespec>
 	<manifest>
-		<name>XDBotAlarmer</name>
-		<symbolicName>io.macchina.xitech.xdbot.alarmer</symbolicName>
+		<name>xitech.xdbot.Alarmer</name>
+		<symbolicName>cn.xitech.xdbot.alarmer</symbolicName>
 		<version>1.0.0</version>
 		<vendor>Applied Informatics</vendor>
 		<copyright>(c) 2019-2022, Applied Informatics Software Engineering GmbH</copyright>
 		<activator>
 			<class>xi::XDBotAlarmer::BundleActivator</class>
-			<library>io.macchina.xitech.xdbot.alarmer</library>
+			<library>cn.xitech.xdbot.alarmer</library>
 		</activator>
 		<dependency>
 			<symbolicName>io.macchina.serial</symbolicName>

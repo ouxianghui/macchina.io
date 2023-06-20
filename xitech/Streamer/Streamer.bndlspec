@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <bundlespec>
   <manifest>
-    <name>XiTech Streamer</name>
-    <symbolicName>cn.xitech.iot.streamer</symbolicName>
+    <name>xitech.xdbot.Streamer</name>
+    <symbolicName>cn.xitech.xdbot.streamer</symbolicName>
     <version>1.0.1</version>
     <vendor>XiTech</vendor>
     <copyright>(c) 2013-2023, XiTech</copyright>
     <activator>
       <class>xi::streamer::BundleActivator</class>
-      <library>cn.xitech.iot.streamer</library>
+      <library>cn.xitech.xdbot.streamer</library>
     </activator>
     <lazyStart>false</lazyStart>
     <runLevel>400</runLevel>
