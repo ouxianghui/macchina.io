@@ -72,7 +72,13 @@ protected:
 
 	void setupDatabase();
 
-	void onMessage(const std::string& buffer);
+	void onMessage(const std::string& json);
+
+	void processDetectionAlarm(Poco::SharedPtr<DetectionData> data);
+
+	std::vector<Poco::SharedPtr<DetectionData>> parseDetectionAlarmData(const Poco::Dynamic::Var& var);
+
+	void response(int64_t req, int32_t code, const std::string& reason);
 
 private:
 

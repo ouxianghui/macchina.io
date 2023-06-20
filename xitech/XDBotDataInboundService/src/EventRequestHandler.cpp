@@ -39,6 +39,20 @@
 #include "Utility.h"
 #include "Poco/Net/WebSocket.h"
 #include "Poco/Net/NetException.h"
+#include "Poco/JSON/Parser.h"
+#include "Poco/JSON/ParseHandler.h"
+#include "Poco/JSON/JSONException.h"
+#include "Poco/JSON/Object.h"
+#include "Poco/JSON/Array.h"
+#include "Poco/JSON/Stringifier.h"
+#include "Poco/StreamCopier.h"
+#include "Poco/Dynamic/Struct.h"
+#include "Poco/Dynamic/Var.h"
+#include "Poco/DateTime.h"
+#include "Poco/DateTimeFormat.h"
+#include "Poco/Timezone.h"
+#include "Poco/StringTokenizer.h"
+#include "Poco/String.h"
 
 
 namespace xi {
@@ -222,9 +236,175 @@ void EventRequestHandler::setupDatabase()
 	_pContext->logger().debug(Poco::format("*** Connected to [MySQL] '%s' database.", _dbName));
 }
 
-void EventRequestHandler::onMessage(const std::string& buffer)
+void EventRequestHandler::onMessage(const std::string& json)
 {
+    if (json.empty()) {
+        return;
+    }
 
+    Poco::JSON::Parser parser;
+    Poco::Dynamic::Var result;
+    try {
+        result = parser.parse(json);
+    } 
+	catch (Poco::JSON::JSONException& jsone) {
+		std::cerr << jsone.what() << ": " << jsone.message() << std::endl;
+    }
+
+    Poco::JSON::Object::Ptr object = result.extract<Poco::JSON::Object::Ptr>();
+
+    if (!object) {
+        return;
+    }
+
+    Poco::JSON::Object::NameList names = object->getNames();
+
+    const Poco::DynamicStruct& ds = *object;
+
+    if (ds.size() <= 0) {
+        return;
+    }
+
+	int32_t req = -1;
+	Poco::Dynamic::Var reqVar = ds["req"];
+	if (reqVar.isInteger()) {
+		req = reqVar;
+	}
+
+	int32_t type = -1;
+	Poco::Dynamic::Var typeVar = ds["type"];
+	if (typeVar.isInteger()) {
+		type = typeVar;
+	}
+
+	if (type == 0) {
+		_scheduler.dispatchFunc([req, result, this](){
+			auto models = parseDetectionAlarmData(result);
+			for (auto model : models) {
+				processDetectionAlarm(model);
+			}
+
+			response(req, 0, "");
+		});
+	}
+}
+
+void EventRequestHandler::processDetectionAlarm(Poco::SharedPtr<DetectionData> data)
+{
+	if (!data) {
+		return;
+	}
+
+ 	if  (!_pSession) {
+		return;
+	}
+
+	try {
+		Statement stmt = (
+		*_pSession << "INSERT INTO DetectionData(devCode, devName, valueType, value, valueCN, recResult, recReason, imageUrl, eventTime) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?) "
+		, use(data->devCode)
+		, use(data->devName)
+		, use(data->valueType)
+		, use(data->value)
+		, use(data->valueCN)
+		, use(data->recResult)
+		, use(data->recReason)
+		, use(data->imageUrl)
+		, use(data->eventTime)
+		);
+		stmt.execute();
+		poco_assert (stmt.done());
+	}
+	catch(Poco::Exception& exc) {
+		std::cerr << exc.what() << ": " << exc.message() << std::endl;
+	}
+}
+
+
+std::vector<Poco::SharedPtr<DetectionData>> parseDetectionAlarmData(const Poco::Dynamic::Var& var) 
+{
+    Poco::JSON::Object::Ptr object = var.extract<Poco::JSON::Object::Ptr>();
+
+    if (!object) {
+        return {};
+    }
+
+    Poco::JSON::Object::NameList names = object->getNames();
+
+    const Poco::DynamicStruct& ds = *object;
+
+    if (ds.size() <= 0) {
+        return {};
+    }
+
+	std::string imgUrl;
+    Poco::Dynamic::Var img = ds["img"];
+    if (img.isString()) {
+        imgUrl = img.convert<std::string>();
+    }
+
+	std::vector<Poco::SharedPtr<DetectionData>> modelVec;
+
+	Poco::Dynamic::Var datas = ds["devList"];
+    if (datas.isArray()) {
+        for (const auto& elem : datas) {
+            Poco::SharedPtr<DetectionData> model = new DetectionData();
+            Poco::Dynamic::Var devCode = elem["devCode"];
+            if (devCode.isString()) {
+                model->devCode = devCode.convert<std::string>();
+            }
+			Poco::Dynamic::Var devName = elem["devName"];
+            if (devName.isString()) {
+                model->devName = devName.convert<std::string>();
+            }
+			Poco::Dynamic::Var valueType = elem["valueType"];
+            if (valueType.isString()) {
+                model->valueType = valueType.convert<std::string>();
+            }
+			Poco::Dynamic::Var value = elem["value"];
+            if (value.isString()) {
+                model->value = value.convert<std::string>();
+            }
+			Poco::Dynamic::Var valueCN = elem["valueCN"];
+            if (valueCN.isString()) {
+                model->valueCN = valueCN.convert<std::string>();
+            }
+            Poco::Dynamic::Var recResult = elem["recResult"];
+			if (recResult.isInteger()) {
+				model->recResult = recResult;
+			}
+			Poco::Dynamic::Var recReason = elem["recReason"];
+            if (recReason.isString()) {
+                model->recReason = recReason.convert<std::string>();
+            }
+            model->imageUrl = imgUrl;
+			Poco::Dynamic::Var time = elem["time"];
+            if (time.isString()) {
+                std::string timeString = time.convert<std::string>();
+                Poco::DateTime dt;
+                int tz = -1;
+                if (Poco::DateTimeParser::tryParse(Poco::DateTimeFormat::SORTABLE_FORMAT, timeString, dt, tz)) {
+                    model->eventTime = dt;
+                }
+            }
+            modelVec.emplace_back(model);
+        }
+    }
+
+    return modelVec;
+}
+
+void EventRequestHandler::response(int64_t req, int32_t code, const std::string& reason) 
+{
+	Poco::JSON::Object resp;
+	resp.set("resp", req);
+	resp.set("code", code);
+	resp.set("reason", reason);
+
+	std::ostringstream osstr;
+	Poco::JSON::Stringifier::stringify(resp, osstr);
+	std::string str = osstr.str();
+	send(str);
 }
 
 Poco::Net::HTTPRequestHandler* EventRequestHandlerFactory::createRequestHandler(const Poco::Net::HTTPServerRequest& request)

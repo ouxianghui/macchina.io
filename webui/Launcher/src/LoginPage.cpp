@@ -1,7 +1,7 @@
 //
 // LoginPage.cpp
 //
-// This file has been generated from LoginPage.cpsp on 2020-02-14 12:01:52.
+// This file has been generated from LoginPage.cpsp on 2023-06-20 00:17:22.
 //
 
 
@@ -49,7 +49,7 @@ void LoginPage::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::
 		}
 	}
 	Poco::Net::HTMLForm form(request, request.stream());
-#line 9 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LoginPage.cpsp"
+#line 9 "/home/ubuntu/Documents/dev/macchina.io/webui/Launcher/src/LoginPage.cpsp"
 
 std::string message;
 if (session)
@@ -83,16 +83,16 @@ if (session)
 	responseStream << "    <div class=\"contentcontainer\">\n";
 	responseStream << "      <div class=\"content\">\n";
 	responseStream << "        ";
-#line 38 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LoginPage.cpsp"
+#line 38 "/home/ubuntu/Documents/dev/macchina.io/webui/Launcher/src/LoginPage.cpsp"
  if (!message.empty()) { 	responseStream << "\n";
 	responseStream << "          <div class=\"error\">\n";
 	responseStream << "            ";
-#line 40 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LoginPage.cpsp"
+#line 40 "/home/ubuntu/Documents/dev/macchina.io/webui/Launcher/src/LoginPage.cpsp"
 	responseStream << ( U::htmlize(message) );
 	responseStream << "\n";
 	responseStream << "          </div>\n";
 	responseStream << "        ";
-#line 42 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LoginPage.cpsp"
+#line 42 "/home/ubuntu/Documents/dev/macchina.io/webui/Launcher/src/LoginPage.cpsp"
  } 	responseStream << "\n";
 	responseStream << "        <div class=\"loginBox\">\n";
 	responseStream << "          <form method=\"post\" action=\"/\">\n";

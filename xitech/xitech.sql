@@ -76,7 +76,7 @@ create table DetectionData
     valueType VARCHAR(16), 
     value VARCHAR(16), 
     valueCN VARCHAR(64), 
-    recResult UNSIGNED,
+    recResult INT UNSIGNED,
     recReason VARCHAR(64),
     imageUrl VARCHAR(256),
     eventTime DATETIME,
