@@ -116,8 +116,6 @@ void EventRequestHandler::send(const std::string& buffer)
 void EventRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
 {
 	try {
-		Poco::ThreadPool::defaultPool().start(*this);
-
 		if (!_pingTimer) {
 			_pingTimer = new Poco::Timer(1000, 1000*10);
 			_pingTimer->start(_sendPing);
@@ -127,7 +125,7 @@ void EventRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, P
 			_pWS = std::make_shared<Poco::Net::WebSocket>(request, response);
 		}
 
-		char buffer[1024] = {0};
+		char buffer[8192] = {0};
 		int n = 0;
 		do {
 			n = _pWS->receiveFrame(buffer, sizeof(buffer), _flags);
@@ -175,11 +173,6 @@ void EventRequestHandler::onSendPing(Poco::Timer& timer)
 			_pWS->close();
 		}
 	}
-}
-
-void EventRequestHandler::run() 
-{
-	
 }
 
 void EventRequestHandler::connectNoDB() 
@@ -317,7 +310,6 @@ void EventRequestHandler::processDetectionAlarm(Poco::SharedPtr<DetectionData> d
 		std::cerr << exc.what() << ": " << exc.message() << std::endl;
 	}
 }
-
 
 std::vector<Poco::SharedPtr<DetectionData>> EventRequestHandler::parseDetectionAlarmData(const Poco::Dynamic::Var& var) 
 {

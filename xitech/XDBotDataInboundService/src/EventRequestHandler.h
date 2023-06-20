@@ -46,7 +46,7 @@ namespace xi {
 namespace XDBotDataInboundService {
 
 
-class EventRequestHandler: public Poco::Net::HTTPRequestHandler, public Poco::Runnable
+class EventRequestHandler: public Poco::Net::HTTPRequestHandler
 {
 public:
 	EventRequestHandler(Poco::OSP::BundleContext::Ptr pContext);
@@ -56,8 +56,6 @@ public:
 
 	// Poco::Net::HTTPRequestHandler
 	void handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
-
-	void run() override;
 
 protected:
 	Poco::OSP::BundleContext::Ptr context() const;
