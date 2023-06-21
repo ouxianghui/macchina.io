@@ -72,7 +72,7 @@ protected:
 
 	void onMessage(const std::string& json);
 
-	void processDetectionAlarm(Poco::SharedPtr<DetectionData> data);
+	bool processDetectionAlarm(const std::vector<Poco::SharedPtr<DetectionData>>& models);
 
 	std::vector<Poco::SharedPtr<DetectionData>> parseDetectionAlarmData(const Poco::Dynamic::Var& var);
 

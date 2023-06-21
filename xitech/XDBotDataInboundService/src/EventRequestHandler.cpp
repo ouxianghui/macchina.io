@@ -262,6 +262,7 @@ void EventRequestHandler::onMessage(const std::string& json)
 
     Poco::JSON::Parser parser;
     Poco::Dynamic::Var result;
+	int32_t req = -1;
     try {
         result = parser.parse(json);
 
@@ -277,7 +278,6 @@ void EventRequestHandler::onMessage(const std::string& json)
 			return;
 		}
 
-		int32_t req = -1;
 		Poco::Dynamic::Var reqVar = ds["req"];
 		if (reqVar.isInteger()) {
 			req = reqVar;
@@ -289,50 +289,64 @@ void EventRequestHandler::onMessage(const std::string& json)
 			type = typeVar;
 		}
 
+		// type, 0: detection alarm
 		if (type == 0) {
 			_scheduler.dispatchFunc([req, result, this](){
 				auto models = parseDetectionAlarmData(result);
-				for (auto model : models) {
-					processDetectionAlarm(model);
+				if (!models.empty()) {
+					if (processDetectionAlarm(models)) {
+						response(req, 0, "success");
+					}
+					else {
+						response(req, 1, "Save to database failed");
+					}
+				}					
+				else {
+					response(req, 2, "Invalid data content or format");
 				}
-
-				response(req, 0, "");
 			});
 		}
     } 
 	catch (Poco::JSON::JSONException& jsone) {
 		std::cerr << jsone.what() << ": " << jsone.message() << std::endl;
+		if (req == -1) {
+			response(req, 3, "JSON parse exception");
+		}
     }
 }
 
-void EventRequestHandler::processDetectionAlarm(Poco::SharedPtr<DetectionData> data)
+bool EventRequestHandler::processDetectionAlarm(const std::vector<Poco::SharedPtr<DetectionData>>& models)
 {
-	if (!data) {
-		return;
+	if (models.empty()) {
+		return false;
 	}
 
  	if  (!_pSession) {
-		return;
+		return false;
 	}
 
 	try {
-		Statement stmt = (
-		*_pSession << "INSERT INTO DetectionData(devCode, devName, valueType, value, valueCN, recResult, recReason, imageUrl, eventTime) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?) "
-		, use(data->devCode)
-		, use(data->devName)
-		, use(data->valueType)
-		, use(data->value)
-		, use(data->valueCN)
-		, use(data->recResult)
-		, use(data->recReason)
-		, use(data->imageUrl)
-		, use(data->eventTime)
-		);
-		stmt.execute();
-		poco_assert (stmt.done());
+		for (auto data : models) {
+			Statement stmt = (
+			*_pSession << "INSERT INTO DetectionData(devCode, devName, valueType, value, valueCN, recResult, recReason, imageUrl, eventTime) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?) "
+			, use(data->devCode)
+			, use(data->devName)
+			, use(data->valueType)
+			, use(data->value)
+			, use(data->valueCN)
+			, use(data->recResult)
+			, use(data->recReason)
+			, use(data->imageUrl)
+			, use(data->eventTime)
+			);
+			stmt.execute();
+			poco_assert (stmt.done());
+		}
+		return true;
 	}
 	catch(Poco::Exception& exc) {
 		std::cerr << exc.what() << ": " << exc.message() << std::endl;
+		return false;
 	}
 }
 
