@@ -264,46 +264,45 @@ void EventRequestHandler::onMessage(const std::string& json)
     Poco::Dynamic::Var result;
     try {
         result = parser.parse(json);
+
+		Poco::JSON::Object::Ptr object = result.extract<Poco::JSON::Object::Ptr>();
+
+		if (!object) {
+			return;
+		}
+
+		const Poco::DynamicStruct& ds = *object;
+
+		if (ds.size() <= 0) {
+			return;
+		}
+
+		int32_t req = -1;
+		Poco::Dynamic::Var reqVar = ds["req"];
+		if (reqVar.isInteger()) {
+			req = reqVar;
+		}
+
+		int32_t type = -1;
+		Poco::Dynamic::Var typeVar = ds["type"];
+		if (typeVar.isInteger()) {
+			type = typeVar;
+		}
+
+		if (type == 0) {
+			_scheduler.dispatchFunc([req, result, this](){
+				auto models = parseDetectionAlarmData(result);
+				for (auto model : models) {
+					processDetectionAlarm(model);
+				}
+
+				response(req, 0, "");
+			});
+		}
     } 
 	catch (Poco::JSON::JSONException& jsone) {
 		std::cerr << jsone.what() << ": " << jsone.message() << std::endl;
-		return;
     }
-
-    Poco::JSON::Object::Ptr object = result.extract<Poco::JSON::Object::Ptr>();
-
-    if (!object) {
-        return;
-    }
-
-    const Poco::DynamicStruct& ds = *object;
-
-    if (ds.size() <= 0) {
-        return;
-    }
-
-	int32_t req = -1;
-	Poco::Dynamic::Var reqVar = ds["req"];
-	if (reqVar.isInteger()) {
-		req = reqVar;
-	}
-
-	int32_t type = -1;
-	Poco::Dynamic::Var typeVar = ds["type"];
-	if (typeVar.isInteger()) {
-		type = typeVar;
-	}
-
-	if (type == 0) {
-		_scheduler.dispatchFunc([req, result, this](){
-			auto models = parseDetectionAlarmData(result);
-			for (auto model : models) {
-				processDetectionAlarm(model);
-			}
-
-			response(req, 0, "");
-		});
-	}
 }
 
 void EventRequestHandler::processDetectionAlarm(Poco::SharedPtr<DetectionData> data)
@@ -427,3 +426,33 @@ Poco::Net::HTTPRequestHandler* EventRequestHandlerFactory::createRequestHandler(
 }
 
 } } // namespace xi::XDBotDataInboundService
+
+
+// test json string:
+// {
+// "req":1,
+// "type":0,
+// "devList":[
+// {
+// "devName":"T1",
+// "devCode":"1234567890",
+// "valueType":"int",
+// "value":"1",
+// "valueCN":"opened",
+// "recResult":1,
+// "recReason":"daily",
+// "time":"2023-06-20 19:36:34"
+// },
+// {
+// "devName":"T2",
+// "devCode":"1234567891",
+// "valueType":"int",
+// "value":"0",
+// "valueCN":"closed",
+// "recResult":1,
+// "recReason":"daily",
+// "time":"2023-06-20 19:36:54"
+// }
+// ],
+// "imgUrl":"https://192.168.1.3/group1/M00/00/test.jpg"
+// }
