@@ -158,12 +158,13 @@ void EventRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, P
 			//}
 
 			n = _pWS->receiveFrame(buffer, sizeof(buffer), _flags);
+			_pContext->logger().information(Poco::format("Frame received (length=%d, flags=0x%x).", n, unsigned(_flags)));
 			if ((_flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) == Poco::Net::WebSocket::FRAME_OP_TEXT) {
 				std::string msg(buffer, n);
 				onMessage(msg);
 			}
-		} while (n > 0 || (_flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) != Poco::Net::WebSocket::FRAME_OP_CLOSE);
-
+		} while (n > 0 && (_flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) != Poco::Net::WebSocket::FRAME_OP_CLOSE);
+		_pContext->logger().information("websocket connection closed.");
 	}
 	catch (Poco::Net::WebSocketException& exc) {
 		_pContext->logger().log(exc);
@@ -309,9 +310,7 @@ void EventRequestHandler::onMessage(const std::string& json)
     } 
 	catch (Poco::JSON::JSONException& jsone) {
 		std::cerr << jsone.what() << ": " << jsone.message() << std::endl;
-		if (req == -1) {
-			response(req, 3, "JSON parse exception");
-		}
+		response(req, 3, "JSON parse exception");
     }
 }
 
