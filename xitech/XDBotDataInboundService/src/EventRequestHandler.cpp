@@ -158,7 +158,7 @@ void EventRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, P
 			//}
 
 			n = _pWS->receiveFrame(buffer, sizeof(buffer), _flags);
-			_pContext->logger().information(Poco::format("Frame received (length=%d, flags=0x%x).", n, unsigned(_flags)));
+			//_pContext->logger().information(Poco::format("Frame received (length=%d, flags=0x%x).", n, unsigned(_flags)));
 			if ((_flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) == Poco::Net::WebSocket::FRAME_OP_TEXT) {
 				std::string msg(buffer, n);
 				onMessage(msg);
