@@ -71,10 +71,6 @@ Poco::OSP::BundleContext::Ptr GPSRequestHandler::context() const
 
 void GPSRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
 {
-	Poco::Path p(request.getURI(), Poco::Path::PATH_UNIX);
-	p.makeFile();
-	std::string resource = p.getBaseName();
-
 	if (request.getMethod() == "HEAD" || request.getMethod() == "GET" || request.getMethod() == "POST") {
 		response.setContentType("application/json");
 
@@ -95,7 +91,6 @@ void GPSRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, Poc
 				if (_pSerialDevice->poll(1.0)) {
 					auto ch = _pSerialDevice->readByte();
 					buf.emplace_back(ch);
-					std::cout << i << ": " << (int)ch << std::endl;
 				}
 				else {
 					std::cout << "_pSerialDevice->readString() timeout" << std::endl;
@@ -105,14 +100,12 @@ void GPSRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, Poc
 			if (buf.size() >= 3) {
 				len = buf[2];
 			}
-			std::cout << "len: " << len << std::endl;
 			float lat = 0.0;
 			u_char vbuf[4] = {0};
 			for (int32_t i = 0; i < len; ++i) {
 				vbuf[i] = buf[len+2-i];
 			}
 			memcpy(&lat, vbuf, 4);
-			std::cout << "lat: " << lat << std::endl;
 
 			cmd.clear();
 			cmd.push_back(0x01);
@@ -129,7 +122,6 @@ void GPSRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, Poc
 				if (_pSerialDevice->poll(1.0)) {
 					auto ch = _pSerialDevice->readByte();
 					buf.emplace_back(ch);
-					std::cout << i << ": " << (int)ch << std::endl;
 				}
 				else {
 					std::cout << "_pSerialDevice->readString() timeout" << std::endl;
@@ -139,14 +131,12 @@ void GPSRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, Poc
 			if (buf.size() >= 3) {
 				len = buf[2];
 			}
-			std::cout << "len: " << len << std::endl;
 			float lon = 0.0;
 			vbuf[4] = {0};
 			for (int32_t i = 0; i < len; ++i) {
 				vbuf[i] = buf[len+2-i];
 			}
 			memcpy(&lon, vbuf, 4);
-			std::cout << "lon: " << lon << std::endl;
 
 			Poco::JSON::Object messsage;
 			messsage.set("longtitude", lon);
