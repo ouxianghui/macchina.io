@@ -22,7 +22,7 @@
 #include "Poco/ClassLibrary.h"
 #include "Poco/SharedPtr.h"
 #include "EventRequestHandler.h"
-
+#include "GPSRequestHandler.h"
 
 namespace xi {
 namespace XDBotDataOutboundService {
@@ -54,8 +54,8 @@ public:
 
 POCO_BEGIN_NAMED_MANIFEST(WebServer, Poco::OSP::Web::WebRequestHandlerFactory)
 	POCO_EXPORT_CLASS(xi::XDBotDataOutboundService::EventRequestHandlerFactory)
+	POCO_EXPORT_CLASS(xi::XDBotDataOutboundService::GPSRequestHandlerFactory)
 POCO_END_MANIFEST
-
 
 POCO_BEGIN_MANIFEST(Poco::OSP::BundleActivator)
 	POCO_EXPORT_CLASS(xi::XDBotDataOutboundService::BundleActivator)

@@ -1,3 +1,4 @@
 <extensions>
   <extension point="osp.web.server.requesthandler" methods="GET, HEAD, POST" pattern="/xitech/xdbot/data/outbound/service/events" class="xi::XDBotDataOutboundService::EventRequestHandlerFactory" library="cn.xitech.xdbot.data.outbound.service" allowSpecialization="none" hidden="true"/>
+  <extension point="osp.web.server.requesthandler" methods="GET, HEAD, POST" pattern="/xitech/xdbot/data/outbound/service/gps" class="xi::XDBotDataOutboundService::GPSRequestHandlerFactory" library="cn.xitech.xdbot.data.outbound.service" allowSpecialization="none" hidden="true"/>
 </extensions>

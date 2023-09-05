@@ -77,5 +77,6 @@
         "**/.dep": true,
         "**/bin": true,
         "**/obj": true
-    }
+	},
+	"cmake.sourceDirectory": "/home/ubuntu/Documents/dev/macchina.io/platform/CppUnit"
 }
