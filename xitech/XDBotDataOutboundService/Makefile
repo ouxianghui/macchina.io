@@ -10,6 +10,9 @@ include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
 objects =  \
 	EventRequestHandler \
 	GPSRequestHandler \
+	TemperatureRequestHandler \
+	WindSpeedRequestHandler \
+	WaterImmersionRequestHandler \
 	Utility \
 	BundleActivator 
 

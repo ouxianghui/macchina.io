@@ -23,6 +23,9 @@
 #include "Poco/SharedPtr.h"
 #include "EventRequestHandler.h"
 #include "GPSRequestHandler.h"
+#include "TemperatureRequestHandler.h"
+#include "WindSpeedRequestHandler.h"
+#include "WaterImmersionRequestHandler.h"
 
 namespace xi {
 namespace XDBotDataOutboundService {
@@ -55,6 +58,9 @@ public:
 POCO_BEGIN_NAMED_MANIFEST(WebServer, Poco::OSP::Web::WebRequestHandlerFactory)
 	POCO_EXPORT_CLASS(xi::XDBotDataOutboundService::EventRequestHandlerFactory)
 	POCO_EXPORT_CLASS(xi::XDBotDataOutboundService::GPSRequestHandlerFactory)
+	POCO_EXPORT_CLASS(xi::XDBotDataOutboundService::TemperatureRequestHandlerFactory)
+	POCO_EXPORT_CLASS(xi::XDBotDataOutboundService::WindSpeedRequestHandlerFactory)
+	POCO_EXPORT_CLASS(xi::XDBotDataOutboundService::WaterImmersionRequestHandlerFactory)
 POCO_END_MANIFEST
 
 POCO_BEGIN_MANIFEST(Poco::OSP::BundleActivator)
